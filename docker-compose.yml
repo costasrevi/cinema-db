@@ -1,0 +1,50 @@
+version: "3.4"
+
+services:
+  auth:
+    build: ./auth
+    image: auth:latest
+    env_file: ./auth/postgres.env
+    depends_on:
+      - auth-db
+    ports:
+      - "5000"
+    restart: always
+  auth-db:
+    image: postgres:latest
+    env_file: ./auth/postgres.env
+    restart: always
+  nginx:
+    build: ./nginx
+    image: nginx:latest
+    ports:
+      - 80:80
+    depends_on:
+      - auth
+      - client
+    restart: always
+  client:
+    build: ./client
+    image: client:latest
+    ports:
+      - "3000"
+    environment:
+      - NODE_ENV=development
+      - REACT_APP_SERVICE_URL=http://localhost:80
+      - CHOKIDAR_USEPOLLING=true
+    depends_on:
+      - auth
+    restart: always
+  dbmaster:
+    build: ./dbmaster
+    image: dbmaster:latest
+    env_file: ./dbmaster/postgres2.env
+    depends_on:
+      - dbmaster-db
+    ports:
+      - "5002"
+    restart: always
+  dbmaster-db:
+    image: postgres:latest
+    env_file: ./dbmaster/postgres2.env
+    restart: always
