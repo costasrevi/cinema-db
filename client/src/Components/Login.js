@@ -4,7 +4,7 @@ import { Form, Button, Col } from "react-bootstrap";
 
 import axios from "axios";
 
-import { checkCookie, setCookie } from "../Authentication/cookies";
+import { checkCookie, setCookie,checkConfirmed } from "../Authentication/cookies";
 
 const url = process.env.REACT_APP_SERVICE_URL;
 class Login extends Component {
@@ -14,6 +14,7 @@ class Login extends Component {
       username: "",
       password: "",
       isAuthenticated: checkCookie(),
+      confirmed:checkConfirmed(),
     };
     this.handleChange = this.handleChange.bind(this);
   }
@@ -40,6 +41,9 @@ class Login extends Component {
         this.setState({ isAuthenticated: true });
       },
       (error) => {
+        if (error.error === 'not confirmed'){
+
+        }
         alert("Authentication Unsuccesful. Please check your credentials.");
       }
     );
@@ -49,6 +53,9 @@ class Login extends Component {
   render() {
     if (this.state.isAuthenticated) {
       return <Redirect to="/dashboard" />;
+    }
+    if (this.state.confirmed) {
+      return <Redirect to="/welcome" />;
     }
     return (
       <Form

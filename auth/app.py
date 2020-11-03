@@ -130,6 +130,9 @@ def login():
     if not check_password:
         error = 'Password is incorrect'
         return Response(error, status=400)
+    if not user.confirmed:
+        error = 'not confirmed'
+        return Response(error, status=400)
     token = encodeAuthToken(user.username, user.user_role,user.confirmed)
     return token
     # REMEMBER TO REMOVE DECODE FROM HERE BEFORE PRODUCTION

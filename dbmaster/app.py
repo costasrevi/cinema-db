@@ -138,14 +138,14 @@ def editMovie():
         pass
     try:
         startDate = request.json['startDate']
-        movie.startDate = dt.strptime(startDate,"%Y-%b-%d")
+        movie.startDate = dt.strptime(startDate,"%Y-%m-%d")
         db.session.commit()
         return Response("Userdb changed with great success "+ startDate, status=200)
     except:
         pass
     try:
         endDate = request.json['endDate']
-        movie.endDate = dt.strptime(endDate,"%Y-%b-%d")
+        movie.endDate = dt.strptime(endDate,"%Y-%m-%d")
         db.session.commit()
         return Response("Userdb changed with great success "+endDate, status=200)
     except:

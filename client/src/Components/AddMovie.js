@@ -93,15 +93,6 @@ class AddMovie extends Component {
           onFocusChange={focusedInput => this.setState({ focusedInput })} // PropTypes.func.isRequired,
         />
         </Form.Group>
-        {/* <Form.Group controlId="formBasicPassword">
-          <Form.Label>cinema name</Form.Label>
-          <Form.Control
-            type="cinemaname"
-            name="cinemaname"
-            placeholder="Enter Cinema name"
-            onChange={this.handleChange}
-          />
-        </Form.Group> */}
         <Form.Group controlId="formBasicPassword">
           <Form.Label>category</Form.Label>
           <Form.Control
@@ -116,7 +107,7 @@ class AddMovie extends Component {
             <Button variant="primary" type="submit" onClick={this.handleSubmit}>
               add
             </Button>
-            <Button className="dashboard" href="./dashboard">
+            <Button className="EditMovies" href="./EditMovies">
                 Go Back
             </Button>
           </Col>

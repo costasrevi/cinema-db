@@ -16,6 +16,7 @@ const url = process.env.REACT_APP_SERVICE_URL;
 
 
 function Movies(props) {
+
   const [show, setShow] = useState(false);
   const [show2, setShow2] = useState(false);
   const [show3, setShow3] = useState(false);
@@ -25,6 +26,7 @@ function Movies(props) {
   const [endDate, setendDate] = useState();
   const [startDate, setstartDate] = useState();
   const [category, setcategory] = useState();
+
 
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
@@ -45,6 +47,7 @@ function Movies(props) {
     }).then((response) => {
       console.log("editMovie title success");
     },(error) => {console.log("editMovie title fail");});
+    props.onfetched();
     handleClose();
   };
   const handleSubmit2 = () => {
@@ -54,6 +57,7 @@ function Movies(props) {
     }).then((response) => {
       console.log("editMovie startDate success");
     },(error) => {console.log("startDate title fail");});
+    props.onfetched();
     handleClose2();
   };
   const handleSubmit3 = () => {
@@ -64,6 +68,7 @@ function Movies(props) {
       console.log("editMovie endDate success");
     },(error) => {console.log("editMovie endDate fail");}
     );
+    props.onfetched();
     handleClose3();
   };
   const handleSubmit4 = () => {
@@ -73,19 +78,21 @@ function Movies(props) {
     }).then((response) => {
       console.log("editMovie category success");
     });
+    props.onfetched();
     handleClose4();
-    // EditMovies.setState({movie_fetched: false });
   };
+
   const DeleteMovie = () => {
     axios.post(url + "/dbmaster/DeleteMovie",{
       movie_id:props.movies.movie_id,
     }).then((response) => {
       console.log("DeleteMovie category success");
     });
+    props.onfetched();
   };
+  
 
   return (
-
     <tr>
     <td><Button data-toggle="modal" data-target="title" onClick={handleShow}variant="outline-dark">
     {props.movies.title}
@@ -182,30 +189,36 @@ class EditMovies extends Component {
       username: checkCookie(),
       user_role: checkUser(),
       confirmed: checkConfirmed(),
-      handleChange:"",
       movie_list: [],
-      movie_fetched: false,
-      temporary:"",
+      movie_fetched:false,
     };
     this.setState = this.setState.bind(this);
   }
 
-  fetchMovieList (){
+  fetchMovieList(){
     // event.preventDefault();
-    console.log("movie_list asd:",this.movie_fetched);
     axios.post(url + "/dbmaster/getownermovies",{
       username: this.state.username,
     }).then((response) => {
       const movie_list = response.data.movies;
-      console.log("movie_list fetched");
-      this.setState({ movie_list: movie_list, movie_fetched: true });
+      this.setState({ movie_list: movie_list,movie_fetched:true});
     });
   }
+  componentDidUpdate(){
+    if (this.state.movie_fetched===false){
+      this.fetchMovieList()
+    }
+  }
 
+  componentDidMount(){
+    this.fetchMovieList()
+  }
+  
   render() {
     return (
       <Container bsPrefix="my-container">
-        {this.state.movie_fetched ? null : this.fetchMovieList()}
+        {/* <Movies onfetched ={()=>(this.setState({movie_fetched:!this.state.movie_fetched}))}/> */}
+        {/* {Movies.movie_fetched ? null : this.fetchMovieList()} */}
         <Row className="justify-content-md-center">
           <h4>
             Here you can edit the movies by clicking on them !
@@ -223,9 +236,9 @@ class EditMovies extends Component {
             <tbody>
               {this.state.movie_list.map((movies, index) => (
                 <Movies
+                  onfetched ={()=>(this.setState({movie_fetched:false}))}
                   key={index}
                   movies={movies}
-                  // onClickconfirm={() => this.handleClick(movies)}
                 />
               ))}
             </tbody>

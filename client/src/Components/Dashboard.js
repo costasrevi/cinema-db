@@ -53,9 +53,6 @@ class DashboardPage extends Component {
     if (this.state.user_role === "cinema_owner" && this.state.confirmed===true) {
       return (
         <Col md="auto">
-          <Button className="dashboard" href="./addMovie">
-            Add Movie
-          </Button>
           <Button className="dashboard" href="./editmovies">
             Edit movies
           </Button>
