@@ -112,8 +112,9 @@ class AdminPanel extends Component {
             panel. You can promote users to cinemaowners or Admins!
           </h4>
         </Row>
+        <div class="table-wrapper-scroll-y my-custom-scrollbar">
         <Row>
-          <Table responsive striped bordered hover>
+          <Table class="table-wrapper-scroll-y" responsive striped bordered hover>
             <tbody>
               {this.state.users_list.map((user, index) => (
                 <User
@@ -128,6 +129,7 @@ class AdminPanel extends Component {
             </tbody>
           </Table>
         </Row>
+        </div>
         <Row className="justify-content-md-right">
           <Col md="auto">
             <Button className="dashboard" href="./dashboard">

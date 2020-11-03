@@ -38,7 +38,7 @@ class Login extends Component {
     await axios.post(url + "/auth/login", user_data).then(
       (response) => {
         setCookie("token", response.data);
-        this.setState({ isAuthenticated: true });
+        this.setState({ isAuthenticated: true ,confirmed: true});
       },
       (error) => {
         if (error.error === 'not confirmed'){
@@ -51,10 +51,10 @@ class Login extends Component {
   };
 
   render() {
-    if (this.state.isAuthenticated) {
+    if (this.state.isAuthenticated && this.state.confirmed) {
       return <Redirect to="/dashboard" />;
     }
-    if (this.state.confirmed) {
+    if (!this.state.confirmed && this.state.isAuthenticated) {
       return <Redirect to="/welcome" />;
     }
     return (

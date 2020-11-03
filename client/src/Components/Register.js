@@ -1,9 +1,9 @@
 import React, { Component } from "react";
 import { Redirect } from "react-router-dom";
-import { Form, Button, Col } from "react-bootstrap";
+import { Form, Button, Col,DropdownButton,ButtonGroup,Dropdown } from "react-bootstrap";
 import axios from "axios";
 
-import { checkCookie, setCookie } from "../Authentication/cookies";
+import { checkCookie, setCookie,checkConfirmed } from "../Authentication/cookies";
 
 const url = process.env.REACT_APP_SERVICE_URL;
 
@@ -16,10 +16,12 @@ class Register extends Component {
       email: "",
       name: "",
       surname: "",
-      role:"",
+      role:"user",
+      checkConfirmed: checkConfirmed(),
       isAuthenticated: checkCookie(),
     };
     this.handleChange = this.handleChange.bind(this);
+    this.handleChange2 = this.handleChange2.bind(this);
   }
 
   handleChange(event) {
@@ -27,6 +29,11 @@ class Register extends Component {
     // and use it to target the key on our `state` object with the same name, using bracket syntax
     this.setState({ [event.target.name]: event.target.value });
   }
+
+  handleChange2(event) {
+    this.setState({role: event.target.value});
+  }
+
 
   handleSubmit = async (event) => {
     event.preventDefault();
@@ -52,7 +59,10 @@ class Register extends Component {
   };
 
   render() {
-    if (this.state.isAuthenticated) {
+    if (!this.state.checkConfirmed && this.state.isAuthenticated) {
+      return <Redirect to="/welcome" />;
+    }
+    if (this.state.checkConfirmed && this.state.isAuthenticated) {
       return <Redirect to="/dashboard" />;
     }
     return (
@@ -105,14 +115,23 @@ class Register extends Component {
             onChange={this.handleChange}
           />
         </Form.Group>
-        <Form.Group controlId="formBasicPassword">
-        <Form.Label>Select Role</Form.Label>
-        <Form.Control as="select" >
-          <option onChange={this.handleChange}>User</option>
-          <option onChange={this.handleChange}>Cinema owner</option>
-          <option onChange={this.handleChange}>Admin</option>
-        </Form.Control>
-        </Form.Group>
+        {/* <Form.Group controlId="formBasicPassword">
+        <Form.Label>{this.state.role}</Form.Label>
+          <DropdownButton
+            as={ButtonGroup}
+            title="Change Role"
+            id="bg-nested-dropdown"
+          >
+            <Dropdown.Item onClick={this.handleCinema_owner()}>Choose Cinema Owner</Dropdown.Item>
+            <Dropdown.Item onClick={this.handleAdmin()}>Make Cinema owner</Dropdown.Item>
+            <Dropdown.Item onClick={this.handleUser()}>Make Cinema owner</Dropdown.Item>
+          </DropdownButton>
+        </Form.Group> */
+        <select value={this.state.role} onChange={this.handleChange2}>
+        <option value="User">User</option>
+        <option value="Admin">Admin</option>
+        <option value="cinema_owner">Cinema Owner</option>
+      </select>}
         <Form.Row>
           <Col>
             <Button variant="primary" type="submit" onClick={this.handleSubmit}>
