@@ -1,5 +1,4 @@
-import React, { Component, useState } from "react";
-// import React, { useEffect, useState } from "react";
+import React, { Component } from "react";
 import {
   Container,
   Button,
@@ -8,50 +7,22 @@ import {
   Table,
   Dropdown,
   DropdownButton,
-  Modal,
-  Form,
   ButtonGroup,
 } from "react-bootstrap";
-import { checkCookie, checkUser } from "../Authentication/cookies";
+import { checkCookie, checkUser,checkConfirmed } from "../Authentication/cookies";
 import axios from "axios";
 
 const url = process.env.REACT_APP_SERVICE_URL;
 
 
 function User(props) {
-  const [show, setShow] = useState(false);
 
-  const handleClose = () => setShow(false);
-  const handleShow = () => setShow(true);
   console.log(props.users);
   return (
     <tr>
       <td>{props.users.username}</td>
       <td>{props.users.email}</td>
       <td>{props.users.surname}</td>
-      <td><Button variant="primary" onClick={handleShow}>
-        Launch demo modal
-      </Button>
-
-      <Modal show={show} onHide={handleClose}>
-        <Modal.Header closeButton>
-          <Modal.Title>Modal heading</Modal.Title>
-        </Modal.Header>
-        <Modal.Body><Form.Control
-            type="text"
-            name="surname"
-            placeholder="Enter surname"
-            // onChange={this.handleChange}
-          /></Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={handleClose}>
-            Close
-          </Button>
-          <Button variant="primary" type="submit" onClick={this.handleSubmit}>
-              add
-          </Button>
-        </Modal.Footer>
-      </Modal></td>
       <td>{props.users.name}</td>
       <td>{props.users.confirmed}</td>
       <td><Button onClick={props.onClickconfirm}>confirmed</Button></td>
@@ -82,24 +53,14 @@ class AdminPanel extends Component {
       users_fetched: false,
     };
     this.setState = this.setState.bind(this);
-    this.handleChange = this.handleChange.bind(this);
   }
-  handleSubmit = async (event) => {
-    event.preventDefault();
 
-  }
   fetchUsersList() {
     axios.get(url + "/auth/get_users").then((response) => {
       const users_list = response.data.users_list;
       console.log("users fetched");
       this.setState({ users_list: users_list, users_fetched: true });
     });
-  }
-
-  handleChange(event) {
-    // check it out: we get the event.target.name (which will be either "username" or "password")
-    // and use it to target the key on our `state` object with the same name, using bracket syntax
-    this.setState({ [event.target.name]: event.target.value });
   }
 
   handleClick(user, role) {

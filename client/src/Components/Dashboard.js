@@ -56,6 +56,9 @@ class DashboardPage extends Component {
           <Button className="dashboard" href="./addMovie">
             Add Movie
           </Button>
+          <Button className="dashboard" href="./editmovies">
+            Edit movies
+          </Button>
         </Col>
       );
     }
@@ -130,11 +133,6 @@ class DashboardPage extends Component {
           {this.renderAdmin()}
           <Col md="auto">
             <Button className="dashboard" href="./logout">
-              Logout
-            </Button>
-          </Col>
-          <Col md="auto">
-            <Button className="dashboard" href="./editmovies">
               Logout
             </Button>
           </Col>

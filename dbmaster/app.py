@@ -116,11 +116,11 @@ def getmovies():
         data.append({'title': temp.title,'startDate': temp.startDate.strftime("%a %d/%m/%Y"),'endDate': temp.endDate.strftime("%a %d/%m/%Y"),'cinema': temp.cinema, 'category': temp.category})
     return jsonify(movies=data)
 
-@app.route("/dbmaster/getownermovies", methods=["GET"])
+@app.route("/dbmaster/getownermovies", methods=["POST"])
 def getownermovies():
     username = request.json['username']
-    cinemaname=Cinema.query.filter(Cinema.owner == username).first()
-    temps = Movies.query.order_by(Movies.startDate.asc()).filter(Movies.cinema == cinemaname).all()
+    # cinemaname=Cinema.query.filter(Cinema.owner == username).first()
+    temps = Movies.query.order_by(Movies.startDate.asc()).filter(username == Movies.cinema).all()
     data = []
     for temp in temps:
         data.append({'movie_id': temp.movie_id,'title': temp.title,'startDate': temp.startDate.strftime("%a %d/%m/%Y"),'endDate': temp.endDate.strftime("%a %d/%m/%Y"),'cinema': temp.cinema, 'category': temp.category})
