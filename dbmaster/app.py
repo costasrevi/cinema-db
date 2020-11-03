@@ -65,7 +65,6 @@ class Movies(db.Model):
 db.create_all()
 db.session.commit()
 
-
 # CreateUser API
 @app.route("/dbmaster/createUser", methods=["POST"])
 def createUser():
@@ -79,14 +78,6 @@ def createUser():
     db.session.commit()
 
     return Response("Userdb created with great success" + username, status=200)
-
-
-@app.route("/dbmaster/getuser", methods=["POST"])
-def getscores():
-    username = request.json['username']
-
-    scores = User.query.filter_by(username=username).first()
-    return scores.json()
 
 @app.route("/dbmaster/addmovie", methods=["POST"])
 def addmovie():
@@ -126,21 +117,47 @@ def getownermovies():
         data.append({'movie_id': temp.movie_id,'title': temp.title,'startDate': temp.startDate.strftime("%a %d/%m/%Y"),'endDate': temp.endDate.strftime("%a %d/%m/%Y"),'cinema': temp.cinema, 'category': temp.category})
     return jsonify(movies=data)
 
-# @app.route("/dbmaster/editMovie", methods=["POST"])
-# def editMovie():
-#     movie_id = request.json['movie_id']
-#     change = request.json['change']
-#     Movies.query.order_by.filter(Movies.movie_id == movie_id).first()
-#     movie = Movies(
-#         title=title,
-#         startDate=startDate,
-#         endDate=endDate,
-#         cinema=cinema,
-#         category=category
-#     )
-#     db.session.add(movie)
-#     db.session.commit()
-#     return Response("Userdb created with great success" + title, status=200)
+@app.route("/dbmaster/DeleteMovie", methods=["POST"])
+def DeleteMovie():
+    movie_id = request.json['movie_id']
+    Movie = Movies.query.filter(Movies.movie_id == movie_id).first()
+    db.session.delete(Movie)
+    db.session.commit()
+    return Response("Userdb deleted with great success", status=200)
+
+@app.route("/dbmaster/editMovie", methods=["POST"])
+def editMovie():
+    movie_id = request.json['movie_id']
+    movie = Movies.query.filter(Movies.movie_id == movie_id).first()
+    try:
+        title = request.json['title']
+        movie.title = title
+        db.session.commit()
+        return Response("Userdb changed with great success "+ title, status=200)
+    except:
+        pass
+    try:
+        startDate = request.json['startDate']
+        movie.startDate = dt.strptime(startDate,"%Y-%b-%d")
+        db.session.commit()
+        return Response("Userdb changed with great success "+ startDate, status=200)
+    except:
+        pass
+    try:
+        endDate = request.json['endDate']
+        movie.endDate = dt.strptime(endDate,"%Y-%b-%d")
+        db.session.commit()
+        return Response("Userdb changed with great success "+endDate, status=200)
+    except:
+        pass
+    try:
+        category = request.json['category']
+        movie.category = category
+        db.session.commit()
+        return Response("Userdb changed with great success "+category, status=200)
+    except:
+        pass
+    return Response("moviedb changed with great failure", status=350)
 
 if __name__ == "__main__":
     app.run(debug=False)

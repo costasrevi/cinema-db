@@ -39,6 +39,7 @@ function User(props) {
           </Dropdown.Item>
         </DropdownButton>
       </td>
+      <td><Button onClick={props.onClickDelete}>Delete user</Button></td>
     </tr>
   );
 }
@@ -62,6 +63,18 @@ class AdminPanel extends Component {
       this.setState({ users_list: users_list, users_fetched: true });
     });
   }
+
+  handleDelete(user) {
+    axios
+    .post(url + "/auth/DeleteUser", {
+      username: user.username,
+    })
+    .then((response) => {
+      console.log("User Deleted");
+    });  
+    this.fetchUsersList();
+  }
+
 
   handleClick(user, role) {
     if (user.username === this.state.username) {
@@ -109,6 +122,7 @@ class AdminPanel extends Component {
                   onClickconfirm={() => this.handleClick(user, "confirm")}
                   onClickAdmin={() => this.handleClick(user, "admin")}
                   onClickcinema_owner={() => this.handleClick(user, "cinema_owner")}
+                  onClickDelete={() => this.handleDelete(user)}
                 />
               ))}
             </tbody>

@@ -6,6 +6,7 @@ import {
   Row,
   Table,
   Modal,
+  Input,
   Form,
 } from "react-bootstrap";
 import { checkCookie, checkUser,checkConfirmed } from "../Authentication/cookies";
@@ -16,119 +17,160 @@ const url = process.env.REACT_APP_SERVICE_URL;
 
 function Movies(props) {
   const [show, setShow] = useState(false);
-  const [fav, setFav] = useState(false);
+  const [show2, setShow2] = useState(false);
+  const [show3, setShow3] = useState(false);
+  const [show4, setShow4] = useState(false);
+
+  const [title, settitle] = useState();
+  const [endDate, setendDate] = useState();
+  const [startDate, setstartDate] = useState();
+  const [category, setcategory] = useState();
 
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
 
+  const handleClose2 = () => setShow2(false);
+  const handleShow2 = () => {setShow2(true)};
 
-  console.log(props.movies);
-  
-  const handleChange=async() => {
-    this.setState({ handleChange: temp });
+  const handleClose3 = () => setShow3(false);
+  const handleShow3 = () => setShow3(true);
+
+  const handleClose4 = () => setShow4(false);
+  const handleShow4 = () => setShow4(true);
+
+  const handleSubmit = () => {
+    axios.post(url + "/dbmaster/editMovie",{
+      movie_id:props.movies.movie_id,
+      title: title.value,
+    }).then((response) => {
+      console.log("editMovie title success");
+    },(error) => {console.log("editMovie title fail");});
+    handleClose();
+  };
+  const handleSubmit2 = () => {
+    axios.post(url + "/dbmaster/editMovie",{
+      movie_id:props.movies.movie_id,
+      startDate: startDate.value,
+    }).then((response) => {
+      console.log("editMovie startDate success");
+    },(error) => {console.log("startDate title fail");});
+    handleClose2();
+  };
+  const handleSubmit3 = () => {
+    axios.post(url + "/dbmaster/editMovie",{
+      movie_id:props.movies.movie_id,
+      endDate: endDate.value,
+    }).then((response) => {
+      console.log("editMovie endDate success");
+    },(error) => {console.log("editMovie endDate fail");}
+    );
+    handleClose3();
+  };
+  const handleSubmit4 = () => {
+    axios.post(url + "/dbmaster/editMovie",{
+      movie_id:props.movies.movie_id,
+      category: category.value,
+    }).then((response) => {
+      console.log("editMovie category success");
+    });
+    handleClose4();
+    // EditMovies.setState({movie_fetched: false });
+  };
+  const DeleteMovie = () => {
+    axios.post(url + "/dbmaster/DeleteMovie",{
+      movie_id:props.movies.movie_id,
+    }).then((response) => {
+      console.log("DeleteMovie category success");
+    });
   };
 
-  const handleClick=async() =>  {
-    if (role === 'confirm'){
-      axios
-      .post(url + "/auth/confirm_role", {
-        username: user.username,
-      })
-      .then((response) => {
-        console.log("User confirmed");
-      });
-    }
-    this.fetchMovieList();
-  }
-
-
   return (
-    <tr><td><Button variant="light" onClick={handleShow}>
-        {props.movies.title}
-      </Button>
-      <Modal show={show} onHide={handleClose}>
-        <Modal.Header closeButton>
-          <Modal.Title>Change Title</Modal.Title>
-        </Modal.Header>
-        <Modal.Body><Form.Control
-            type="text"
-            name={props.movies.title}
-            placeholder={props.movies.title}
-            onChange={handleChange}
-          /></Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={handleClose}>
-            Close
-          </Button>
-          <Button variant="primary" type="submit" onClick={handleClick}onClick={handleClose}>
-              add
-          </Button>
-        </Modal.Footer>
-      </Modal></td>
-      <td><Button variant="light" onClick={handleShow}>
-      {props.movies.startDate}
-      </Button>
-      <Modal show={show} onHide={handleClose}>
-        <Modal.Header closeButton>
-          <Modal.Title>Change Starting dates</Modal.Title>
-        </Modal.Header>
-        <Modal.Body><Form.Control
-            type="text"
-            name={props.movies.startDate}
-            placeholder={props.movies.startDate}
-          /></Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={handleClose}>
-            Close
-          </Button>
-          <Button variant="primary" type="submit" onClick={handleClick}onClick={handleClose}>
-              add
-          </Button>
-        </Modal.Footer>
-      </Modal></td>
-      <td><Button variant="light" onClick={handleShow}>
-      {props.movies.endDate}
-      </Button>
-      <Modal show={show} onHide={handleClose}>
-        <Modal.Header closeButton>
-          <Modal.Title>Change Ending dates</Modal.Title>
-        </Modal.Header>
-        <Modal.Body><Form.Control
-            type="text"
-            name={props.movies.endDate}
-            placeholder={props.movies.endDate}
-          /></Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={handleClose}>
-            Close
-          </Button>
-          <Button variant="primary" type="submit" onClick={handleClick}onClick={handleClose}>
-              add
-          </Button>
-        </Modal.Footer>
-      </Modal></td>
-      <td><Button variant="light" onClick={handleShow}>
-        {props.movies.category}
-      </Button>
-      <Modal show={show} onHide={handleClose}>
-        <Modal.Header closeButton>
-          <Modal.Title>Change category</Modal.Title>
-        </Modal.Header>
-        <Modal.Body><Form.Control
-            type="text"
-            name={props.movies.category}
-            placeholder={props.movies.category}
-            onChange={handleChange}
-          /></Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={handleClose}>
-            Close
-          </Button>
-          <Button variant="primary" type="submit" onClick={handleClick}onClick={handleClose}>
-            Change
-          </Button>
-        </Modal.Footer>
-      </Modal></td>
+
+    <tr>
+    <td><Button data-toggle="modal" data-target="title" onClick={handleShow}variant="outline-dark">
+    {props.movies.title}
+    </Button></td>
+    <td><Button data-toggle="modal" data-target="startDate" onClick={handleShow2}variant="outline-dark">
+    {props.movies.startDate}
+    </Button></td>
+    <td><Button data-toggle="modal" data-target="endDate" onClick={handleShow3}variant="outline-dark">
+    {props.movies.endDate}
+    </Button></td>
+    <td><Button data-toggle="modal" data-target="category"  onClick={handleShow4}variant="outline-dark">
+    {props.movies.category}
+    </Button></td>
+    <td><Button data-toggle="modal" data-target="category"  onClick={DeleteMovie}variant="outline-dark">
+    Delete
+    </Button></td>
+
+    <Modal id="title" show={show} onHide={() => setShow(false)} aria-labelledby="title">
+      <Modal.Header closeButton>
+        <Modal.Title>Change title</Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        <input placeholder={props.movies.title} ref={title => (settitle(title))}type="text" ></input>
+      </Modal.Body>
+      <Modal.Footer>
+        <Button variant="secondary" onClick={handleClose}>
+          Close
+        </Button>
+        <Button variant="primary" onClick={handleSubmit}>
+          Save Changes
+        </Button>
+      </Modal.Footer>
+    </Modal>
+
+    <Modal id="startDate" show={show2} onHide={() => setShow2(false)} aria-labelledby="startDate">
+      <Modal.Header closeButton>
+        <Modal.Title>Change startDate</Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        <input placeholder={props.movies.startDate}type="date" ref={startDate => (setstartDate(startDate))} ></input>
+      </Modal.Body>
+      <Modal.Footer>
+        <Button variant="secondary" onClick={handleClose2}>
+          Close
+        </Button>
+        <Button variant="primary" onClick={handleSubmit2}>
+          Save Changes
+        </Button>
+      </Modal.Footer>
+    </Modal>
+
+    <Modal id="endDate"  show={show3} onHide={() => setShow3(false)} aria-labelledby="endDate" role="dialog" aria-hidden="true">
+      <Modal.Header closeButton>
+        <Modal.Title>Change endDate</Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        <input placeholder={props.movies.endDate}type="date" ref={endDate => (setendDate(endDate))} ></input>
+      </Modal.Body>
+      <Modal.Footer>
+        <Button variant="secondary" onClick={() => setShow3(true)}>
+          Close
+        </Button>
+        <Button variant="primary" onClick={handleSubmit3}>
+          Save Changes
+        </Button>
+      </Modal.Footer>
+    </Modal>
+
+    <Modal id="category" show={show4} onHide={() => setShow4(false)} aria-labelledby="category">
+      <Modal.Header closeButton>
+        <Modal.Title>Change category</Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        <input placeholder={props.movies.category} ref={category => (setcategory(category))}type="text" ></input>
+      </Modal.Body>
+      <Modal.Footer>
+        <Button variant="secondary" onClick={() => setShow4(true)}>
+          Close
+        </Button>
+        <Button variant="primary" onClick={handleSubmit4}>
+          Save Changes
+        </Button>
+      </Modal.Footer>
+    </Modal>
+
     </tr>
   );
 }
@@ -146,10 +188,11 @@ class EditMovies extends Component {
       temporary:"",
     };
     this.setState = this.setState.bind(this);
-    this.handleChange = this.handleChange.bind(this);
   }
 
-  fetchMovieList() {
+  fetchMovieList (){
+    // event.preventDefault();
+    console.log("movie_list asd:",this.movie_fetched);
     axios.post(url + "/dbmaster/getownermovies",{
       username: this.state.username,
     }).then((response) => {
@@ -158,23 +201,6 @@ class EditMovies extends Component {
       this.setState({ movie_list: movie_list, movie_fetched: true });
     });
   }
-
-  // handleChange(temp) {
-  //   this.setState({ handleChange: temp });
-  // }
-
-  // handleClick(user) {
-  //   if (role === 'confirm'){
-  //     axios
-  //     .post(url + "/auth/confirm_role", {
-  //       username: user.username,
-  //     })
-  //     .then((response) => {
-  //       console.log("User confirmed");
-  //     });
-  //   }
-  //   this.fetchMovieList();
-  // }
 
   render() {
     return (
@@ -187,13 +213,19 @@ class EditMovies extends Component {
         </Row>
         <Row>
           <Table responsive striped bordered hover>
+          <thead>
+            <tr><th>Title</th>
+            <th>Start Date</th>
+            <th>End Date</th>
+            <th>Category</th>
+            <th><Button className="dashboard" href="./addMovie">Add Movie</Button></th></tr>
+          </thead>
             <tbody>
               {this.state.movie_list.map((movies, index) => (
                 <Movies
                   key={index}
                   movies={movies}
-                  onClickSubmit={() => this.handleClick()}
-                  handleChange={() => this.handleChange()}
+                  // onClickconfirm={() => this.handleClick(movies)}
                 />
               ))}
             </tbody>

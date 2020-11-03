@@ -65,29 +65,6 @@ class DashboardPage extends Component {
 
   }
 
-  // rendercinemaowner() {
-  //   if (this.state.user_role === "admin" || this.state.user_role === "cinemaowner") {
-  //     return (
-  //       <Col md="auto">
-  //         <Button className="dashboard" href="./addMovie">
-  //           Add Movie
-  //         </Button>
-  //       </Col>
-  //     );
-  //   }
-  // }
-  // handleClick(movies) {
-  //   axios.get(url + "/dbmaster/changeFav").then((response) => {
-  //     const movie_list = response.data.movies;
-  //     console.log("movie changed fav");
-  //     this.setState({ movie_list });
-  //   });
-  //   axios.get(url + "/dbmaster/getmovies").then((response) => {
-  //     const movie_list = response.data.movies;
-  //     console.log("movie_list fetched");
-  //     this.setState({ movie_list });
-  //   });
-  // }
 
   render() {
     return (

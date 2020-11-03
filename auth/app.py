@@ -200,6 +200,13 @@ def get_users():
                            'email': user.email,'surname': user.surname,'name': user.name,'confirmed': temp, 'user_role': user.user_role})
     return jsonify(users_list=users_list)
 
+@app.route("/dbmaster/DeleteUser", methods=["POST"])
+def DeleteUser():
+    username = request.json['username']
+    user = User.query.filter(User.username == username).first()
+    db.session.delete(user)
+    db.session.commit()
+    return Response("Userdb deleted with great success", status=200)
 
 # JWT TOKEN
 def encodeAuthToken(username, user_role,confirmed):
