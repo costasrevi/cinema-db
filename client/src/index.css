@@ -18,7 +18,7 @@ body {
   left: 50%;
   transform: translate(-50%, -50%);
   padding: 20px !important;
-  border-radius: 20px;
+  border-radius: 100px;
   background: #ffffff;
 }
 
@@ -60,7 +60,7 @@ body {
   
 .my-custom-scrollbar {
   position: relative;
-  height: 200px;
+  height: 600px;
   overflow: auto;
   }
 
