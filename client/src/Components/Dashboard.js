@@ -72,20 +72,42 @@ class DashboardPage extends Component {
       movie_list: [],
       button1:true,
       moviesfetch:false,
+      search:"",
       checked2:false,
       button2:true,
     };
     this.setState = this.setState.bind(this);
     this.handleChange = this.handleChange.bind(this);
-    this.searchEndDate = this.searchEndDate.bind(this);
-    this.searchStartDate = this.searchStartDate.bind(this);
+    this.handleChange2 = this.handleChange2.bind(this);
+    this.handleChange3 = this.handleChange3.bind(this);
+    this.handleChange4 = this.handleChange4.bind(this);
+    // this.handleSubmit = this.handleSubmit.bind(this);
     this.handleChecked =this.handleChecked.bind(this);
-    // this.handleChange2 = this.handleChange2.bind(this);
+  }
+  handleChange(event) {
+    this.setState({startDate: event.target.value});
+    setTimeout(() => {
+      this.handleChange4();
+    }, 20);
+    // this.handleChange4();
+  }
+  handleChange2(event) {
+    this.setState({endDate: event.target.value});
+    setTimeout(() => {
+      this.handleChange4();
+    }, 20);
+  }
+  handleChange3(event) {
+    this.setState({search: event.target.value});
+    setTimeout(() => {
+      this.handleChange4();
+    }, 20);
   }
 
-  handleChange(event) {
+
+  handleChange4() {
     if (this.state.checked2){
-      axios.post(url + "/dbmaster/getspecmovies", {search:event.target.value,favorite:"True",username:this.state.username}).then((response) => {
+      axios.post(url + "/dbmaster/getspecmovies", {startDate:this.state.startDate,endDate:this.state.endDate,search:this.state.search,favorite:"True",username:this.state.username}).then((response) => {
       const movie_list = response.data.movies;
       console.log("movie_list fetched");
       this.setState({ movie_list });
@@ -93,7 +115,7 @@ class DashboardPage extends Component {
       console.log("Gamemaster/GetScores - Axios Error.");
     });
     }else{
-      axios.post(url + "/dbmaster/getspecmovies", {search:event.target.value,favorite:"False",username:this.state.username}).then((response) => {
+      axios.post(url + "/dbmaster/getspecmovies", {startDate:this.state.startDate,endDate:this.state.endDate,search:this.state.search,favorite:"False",username:this.state.username}).then((response) => {
         const movie_list = response.data.movies;
         console.log("movie_list fetched");
         this.setState({ movie_list });
@@ -101,28 +123,27 @@ class DashboardPage extends Component {
         console.log("Gamemaster/GetScores - Axios Error.");
       });
     }
-
   }
 
-  searchEndDate(event) {
-    axios.post(url + "/dbmaster/getspecmovies", {search:event.target.value}).then((response) => {
-      const movie_list = response.data.movies;
-      console.log("movie_list fetched");
-      this.setState({ movie_list });
-    }, (error) => {
-      console.log("Gamemaster/GetScores - Axios Error.");
-    });
-  }
-
-  searchStartDate(event) {
-    axios.post(url + "/dbmaster/getspecmovies", {search:event.target.value}).then((response) => {
-      const movie_list = response.data.movies;
-      console.log("movie_list fetched");
-      this.setState({ movie_list });
-    }, (error) => {
-      console.log("Gamemaster/GetScores - Axios Error.");
-    });
-  }
+  // handlesubmit() {
+  //   if (this.state.checked2){
+  //     axios.post(url + "/dbmaster/getspecmovies", {startDate:this.state.startDate,endDate:this.state.endDate,search:"",favorite:"True",username:this.state.username}).then((response) => {
+  //     const movie_list = response.data.movies;
+  //     console.log("movie_list fetched");
+  //     this.setState({ movie_list });
+  //   }, (error) => {
+  //     console.log("Gamemaster/GetScores - Axios Error.");
+  //   });
+  //   }else{
+  //     axios.post(url + "/dbmaster/getspecmovies", {startDate:this.state.startDate,endDate:this.state.endDate,search:"",favorite:"False",username:this.state.username}).then((response) => {
+  //       const movie_list = response.data.movies;
+  //       console.log("movie_list fetched");
+  //       this.setState({ movie_list });
+  //     }, (error) => {
+  //       console.log("Gamemaster/GetScores - Axios Error.");
+  //     });
+  //   }
+  // }
 
   componentDidMount() {
     if (!this.state.moviesfetch){
@@ -171,9 +192,10 @@ class DashboardPage extends Component {
           <Nav.Link disabled={this.state.button2} href="./admin">Admin Panel</Nav.Link>
         </Nav>
         <Form inline>
-          <input type="date" ref={this.startDate} ></input>
-          <input type="date" ref={this.endDate} ></input>
-          <FormControl type="text" placeholder="Search" className="mr-sm-2" onChange={this.handleChange} />
+          <input type="date" value={this.state.startDate} onChange={this.handleChange}></input>
+          <input type="date" value={this.state.endDate} onChange={this.handleChange2}></input>
+          {/* <Button variant="outline-info" onClick={this.handleSubmit}>Filter Dates</Button> */}
+          <FormControl type="text" placeholder="Search" value={this.state.search} className="mr-sm-2" onChange={this.handleChange3} />
           <Nav.Link href="./logout">Log out</Nav.Link>
         </Form>
         </Navbar>

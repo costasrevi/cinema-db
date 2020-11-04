@@ -205,7 +205,7 @@ def get_users():
     return jsonify(users_list=users_list)
 
 @app.route("/auth/getspecusers", methods=["POST"])
-def getspecmovies():
+def getspecusers():
     search = request.json['search']
     search = "%{}%".format(search)
     temps = db.session.query(User).order_by(User.username.asc()).filter(or_(User.username.like(search),User.email.like(search),User.surname.like(search), User.name.like(search),User.user_role.like(search))).all()
