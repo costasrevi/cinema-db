@@ -227,7 +227,7 @@ def getspecmovies():
     search = request.json['search']
     search = "%{}%".format(search)
     username = request.json['username']
-    startDate = request.json['startDate']
+    # startDate = request.json['startDate']
     endDate = request.json['endDate']
     favorite = request.json['favorite']
     if favorite=="True":
@@ -236,12 +236,8 @@ def getspecmovies():
             current = 0
             movielist = []
             while current < len(data["FavList"]):
-                if startDate!="" and endDate!="":
-                    temp=Movies.query.filter(and_(dt.strptime(startDate,"%Y-%m-%d")<=Movies.startDate,dt.strptime(endDate,"%Y-%m-%d")>=Movies.endDate),Movies.movie_id==data["FavList"][current],or_(Movies.title.like(search), Movies.cinema.like(search),Movies.category.like(search))).first()
-                elif startDate!="":
-                    temp=Movies.query.filter(and_(dt.strptime(startDate,"%Y-%m-%d")<=Movies.startDate,Movies.movie_id==data["FavList"][current],or_(Movies.title.like(search), Movies.cinema.like(search),Movies.category.like(search)))).first()
-                elif endDate!="":
-                    temp=Movies.query.filter(and_(dt.strptime(endDate,"%Y-%m-%d")>=Movies.endDate,Movies.movie_id==data["FavList"][current],or_(Movies.title.like(search), Movies.cinema.like(search),Movies.category.like(search)))).first()
+                if  endDate!="":
+                    temp=Movies.query.filter(and_(dt.strptime(endDate,"%Y-%m-%d")>=Movies.startDate,dt.strptime(endDate,"%Y-%m-%d")<=Movies.endDate),Movies.movie_id==data["FavList"][current],or_(Movies.title.like(search), Movies.cinema.like(search),Movies.category.like(search))).first()
                 else:
                     temp=Movies.query.filter(and_(Movies.movie_id==data["FavList"][current],or_(Movies.title.like(search), Movies.cinema.like(search),Movies.category.like(search)))).first()
                 current += 1
@@ -249,12 +245,8 @@ def getspecmovies():
                     movielist.append({'movie_id': temp.movie_id,'title': temp.title,'startDate': temp.startDate.strftime("%a %d/%m/%Y"),'endDate': temp.endDate.strftime("%a %d/%m/%Y"),'cinema': temp.cinema, 'category': temp.category,'favorite':True})
             return jsonify(movies=movielist)
     else:
-        if startDate!="" and endDate!="":
-            temps = Movies.query.order_by(Movies.endDate.asc()).filter(and_(dt.strptime(startDate,"%Y-%m-%d")<=Movies.startDate,dt.strptime(endDate,"%Y-%m-%d")>=Movies.endDate,or_(Movies.title.like(search), Movies.cinema.like(search),Movies.category.like(search)))).all()
-        elif startDate!="":
-            temps = Movies.query.order_by(Movies.endDate.asc()).filter(and_(dt.strptime(startDate,"%Y-%m-%d")<=Movies.startDate,or_(Movies.title.like(search), Movies.cinema.like(search),Movies.category.like(search)))).all()
-        elif endDate!="":
-            temps = Movies.query.order_by(Movies.endDate.asc()).filter(and_(dt.strptime(endDate,"%Y-%m-%d")>=Movies.endDate,or_(Movies.title.like(search), Movies.cinema.like(search),Movies.category.like(search)))).all()
+        if  endDate!="":
+            temps = Movies.query.order_by(Movies.endDate.asc()).filter(and_(dt.strptime(endDate,"%Y-%m-%d")>=Movies.startDate,dt.strptime(endDate,"%Y-%m-%d")<=Movies.endDate,or_(Movies.title.like(search), Movies.cinema.like(search),Movies.category.like(search)))).all()
         else:
             temps = Movies.query.order_by(Movies.endDate.asc()).filter(or_(Movies.title.like(search), Movies.cinema.like(search),Movies.category.like(search))).all()
         data = []

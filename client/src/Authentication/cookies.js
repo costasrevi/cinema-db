@@ -73,6 +73,40 @@ export function checkCookie() {
   }
 }
 
+export function checkCookieandconfirm() {
+  let token = getCookie("token");
+  console.log("token is: ", token);
+  let decoded = jwt.decode(token);
+  if (decoded !== null && decoded.confirmed) {
+    return decoded.username;
+  } else {
+    return null;
+  }
+}
+
+
+export function checkowner() {
+  let token = getCookie("token");
+  console.log("token is: ", token);
+  let decoded = jwt.decode(token);
+  if (decoded.user_role === "cinema_owner") {
+    return decoded.user_role;
+  } else {
+    return null;
+  }
+}
+
+export function checkadmin() {
+  let token = getCookie("token");
+  console.log("token is: ", token);
+  let decoded = jwt.decode(token);
+  if (decoded.user_role === "admin") {
+    return decoded.user_role;
+  } else {
+    return null;
+  }
+}
+
 export function checkUser() {
   let token = getCookie("token");
   console.log("token is: ", token);
@@ -93,4 +127,5 @@ export function checkConfirmed() {
   } else {
     return null;
   }
+
 }

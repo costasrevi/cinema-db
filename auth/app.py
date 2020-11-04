@@ -231,7 +231,7 @@ def DeleteUser():
 def encodeAuthToken(username, user_role,confirmed):
     try:
         payload = {
-            'exp': datetime.datetime.utcnow() + datetime.timedelta(days=0, minutes=60),
+            'exp': datetime.datetime.utcnow() + datetime.timedelta(days=0, minutes=30),
             'iat': datetime.datetime.utcnow(),
             'username': username,
             'user_role': user_role,

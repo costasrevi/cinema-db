@@ -7,6 +7,7 @@ import axios from "axios";
 import { checkCookie, setCookie,checkConfirmed } from "../Authentication/cookies";
 
 const url = process.env.REACT_APP_SERVICE_URL;
+
 class Login extends Component {
   constructor() {
     super();

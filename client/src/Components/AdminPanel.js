@@ -2,7 +2,8 @@ import React, { Component } from "react";
 import {
   Container,Button,Row,Table,Dropdown,Navbar,Nav,Form,FormControl,DropdownButton,ButtonGroup,
 } from "react-bootstrap";
-import { checkCookie, checkUser,checkConfirmed } from "../Authentication/cookies";
+import { Redirect } from "react-router-dom";
+import { checkCookie, checkUser,checkConfirmed,checkadmin } from "../Authentication/cookies";
 import axios from "axios";
 
 const url = process.env.REACT_APP_SERVICE_URL;
@@ -128,67 +129,72 @@ class AdminPanel extends Component {
   }
 
   render() {
-    return (
-      <Container >
-        <Navbar bg="dark" variant="dark">
-        <Navbar.Brand href="./dashboard">Upcoming Movies</Navbar.Brand>
-        <Nav className="mr-auto">
-          <Nav.Link href="./dashboard">Home</Nav.Link>
-          <Nav.Link disabled={this.state.button1} href="./editmovies">Edit Movies</Nav.Link>
-          <Nav.Link disabled={this.state.button2} href="./admin">Admin Panel</Nav.Link>
-        </Nav>
-        <Form inline>
-          <FormControl type="text" placeholder="Search" className="mr-sm-2" onChange={this.handleChange} />
-          <Nav.Link href="./logout">Log out</Nav.Link>
-        </Form>
-        </Navbar>
-        {this.state.users_fetched ? null : this.fetchUsersList()}
-        <Row className="justify-content-md-center">
-          <h4>
-            Good to have you back {this.state.username}! This is your admin
-            panel. You can promote users to cinemaowners or Admins!
-          </h4>
-        </Row>
-        {/* <div class="table-wrapper-scroll-y my-custom-scrollbar"> */}
-        <Row className="justify-content-md-center">
-          <Table  responsive="lg" striped bordered hover>
-            <thead>
-              <tr>
-                <th>Username</th>
-                <th>email</th>
-                <th>Surname</th>
-                <th>Name</th>
-                <th>Confirmed</th>
-                <th></th>
-                <th>Role</th>
-                <th></th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              {this.state.users_list.map((user, index) => (
-                <User
-                  key={index}
-                  users={user}
-                  onClickconfirm={() => this.handleClick(user, "confirm")}
-                  onClickAdmin={() => this.handleClick(user, "admin")}
-                  onClickcinema_owner={() => this.handleClick(user, "cinema_owner")}
-                  onClickDelete={() => this.handleDelete(user)}
-                />
-              ))}
-            </tbody>
-          </Table>
-        </Row>
-        {/* </div> */}
-        {/* <Row className="justify-content-md-right">
-          <Col md="auto">
-            <Button className="dashboard" href="./dashboard">
-              Go Back
-            </Button>
-          </Col>
-        </Row> */}
-      </Container>
-    );
+    if (checkadmin()===null){
+      alert("access denied");
+      return(<Redirect to="/dashboard" />)}
+    else{
+      return (
+        <Container >
+          <Navbar bg="dark" variant="dark">
+          <Navbar.Brand href="./dashboard">Upcoming Movies</Navbar.Brand>
+          <Nav className="mr-auto">
+            <Nav.Link href="./dashboard">Home</Nav.Link>
+            <Nav.Link disabled={this.state.button1} href="./editmovies">Edit Movies</Nav.Link>
+            <Nav.Link disabled={this.state.button2} href="./admin">Admin Panel</Nav.Link>
+          </Nav>
+          <Form inline>
+            <FormControl type="text" placeholder="Search" className="mr-sm-2" onChange={this.handleChange} />
+            <Nav.Link href="./logout">Log out</Nav.Link>
+          </Form>
+          </Navbar>
+          {this.state.users_fetched ? null : this.fetchUsersList()}
+          <Row className="justify-content-md-center">
+            <h4>
+              Good to have you back {this.state.username}! This is your admin
+              panel. You can promote users to cinemaowners or Admins!
+            </h4>
+          </Row>
+          {/* <div class="table-wrapper-scroll-y my-custom-scrollbar"> */}
+          <Row className="justify-content-md-center">
+            <Table  responsive="lg" striped bordered hover>
+              <thead>
+                <tr>
+                  <th>Username</th>
+                  <th>email</th>
+                  <th>Surname</th>
+                  <th>Name</th>
+                  <th>Confirmed</th>
+                  <th></th>
+                  <th>Role</th>
+                  <th></th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {this.state.users_list.map((user, index) => (
+                  <User
+                    key={index}
+                    users={user}
+                    onClickconfirm={() => this.handleClick(user, "confirm")}
+                    onClickAdmin={() => this.handleClick(user, "admin")}
+                    onClickcinema_owner={() => this.handleClick(user, "cinema_owner")}
+                    onClickDelete={() => this.handleDelete(user)}
+                  />
+                ))}
+              </tbody>
+            </Table>
+          </Row>
+          {/* </div> */}
+          {/* <Row className="justify-content-md-right">
+            <Col md="auto">
+              <Button className="dashboard" href="./dashboard">
+                Go Back
+              </Button>
+            </Col>
+          </Row> */}
+        </Container>
+      );
+    }
   }
 }
 

@@ -1,15 +1,15 @@
-import React, { Component, useState ,handleShow} from "react";
+import React, { Component, useState } from "react";
 import {
   Container,
   Button,
-  Col,
   Row,
   Table,
   Modal,
   Form,Navbar,Nav,FormControl,
 } from "react-bootstrap";
-import { checkCookie, checkUser,checkConfirmed } from "../Authentication/cookies";
+import { checkCookie, checkUser,checkConfirmed ,checkowner} from "../Authentication/cookies";
 import axios from "axios";
+import { Redirect } from "react-router-dom";
 
 const url = process.env.REACT_APP_SERVICE_URL;
 
@@ -233,51 +233,56 @@ class EditMovies extends Component {
   }
   
   render() {
-    return (
-      <Container >
-        <Navbar bg="dark" variant="dark">
-        <Navbar.Brand href="./dashboard">Upcoming Movies</Navbar.Brand>
-        <Nav className="mr-auto">
-          <Nav.Link href="./dashboard">Home</Nav.Link>
-          <Nav.Link disabled={this.state.button1} href="./editmovies">Edit Movies</Nav.Link>
-          <Nav.Link disabled={this.state.button2} href="./admin">Admin Panel</Nav.Link>
-        </Nav>
-        <Form inline>
-          <FormControl type="text" placeholder="Search" className="mr-sm-2" onChange={this.handleChange} />
-          <Nav.Link href="./logout">Log out</Nav.Link>
-        </Form>
-        </Navbar>
-        {/* <Movies onfetched ={()=>(this.setState({movie_fetched:!this.state.movie_fetched}))}/> */}
-        {/* {Movies.movie_fetched ? null : this.fetchMovieList()} */}
-        <Row className="justify-content-md-center">
-          <h4>
-            Here you can edit the movies by clicking on them !
-          </h4>
-        </Row>
-        {/* <div class="table-wrapper-scroll-y my-custom-scrollbar"> */}
-        <Row className="justify-content-md-center">
-        <Table responsive="lg" striped bordered hover>
-          <thead>
-            <tr><th>Title</th>
-            <th>Start Date</th>
-            <th>End Date</th>
-            <th>Category</th>
-            <th><Button href="./addMovie">Add Movie</Button></th></tr>
-          </thead>
-            <tbody>
-              {this.state.movie_list.map((movies, index) => (
-                <Movies
-                  onfetched ={()=>(this.setState({movie_fetched:false}))}
-                  key={index}
-                  movies={movies}
-                />
-              ))}
-            </tbody>
-          </Table>
-        </Row>
-        {/* </div> */}
-      </Container>
-    );
+    if (checkowner()===null){
+      alert("access denied");
+      return (<Redirect to="/dashboard" />);}
+    else{
+      return (
+        <Container >
+          <Navbar bg="dark" variant="dark">
+          <Navbar.Brand href="./dashboard">Upcoming Movies</Navbar.Brand>
+          <Nav className="mr-auto">
+            <Nav.Link href="./dashboard">Home</Nav.Link>
+            <Nav.Link disabled={this.state.button1} href="./editmovies">Edit Movies</Nav.Link>
+            <Nav.Link disabled={this.state.button2} href="./admin">Admin Panel</Nav.Link>
+          </Nav>
+          <Form inline>
+            <FormControl type="text" placeholder="Search" className="mr-sm-2" onChange={this.handleChange} />
+            <Nav.Link href="./logout">Log out</Nav.Link>
+          </Form>
+          </Navbar>
+          {/* <Movies onfetched ={()=>(this.setState({movie_fetched:!this.state.movie_fetched}))}/> */}
+          {/* {Movies.movie_fetched ? null : this.fetchMovieList()} */}
+          <Row className="justify-content-md-center">
+            <h4>
+              Here you can edit the movies by clicking on them !
+            </h4>
+          </Row>
+          {/* <div class="table-wrapper-scroll-y my-custom-scrollbar"> */}
+          <Row className="justify-content-md-center">
+          <Table responsive="lg" striped bordered hover>
+            <thead>
+              <tr><th>Title</th>
+              <th>Start Date</th>
+              <th>End Date</th>
+              <th>Category</th>
+              <th><Button href="./addMovie">Add Movie</Button></th></tr>
+            </thead>
+              <tbody>
+                {this.state.movie_list.map((movies, index) => (
+                  <Movies
+                    onfetched ={()=>(this.setState({movie_fetched:false}))}
+                    key={index}
+                    movies={movies}
+                  />
+                ))}
+              </tbody>
+            </Table>
+          </Row>
+          {/* </div> */}
+        </Container>
+      );
+    }
   }
 }
 
