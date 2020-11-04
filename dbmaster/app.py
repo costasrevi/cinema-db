@@ -4,7 +4,10 @@ from flask import Flask, jsonify, Response, request
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import and_
 from datetime import datetime as dt
+import redis
 
+r = redis.Redis(host=os.environ['REDIS_HOST'],
+                port=os.environ['REDIS_PORT'], db=os.environ['REDIS_DB'])
 
 import json
 
@@ -27,15 +30,15 @@ db = SQLAlchemy(app)
 
 
 # Database User Model
-class User(db.Model):
-    __tablename__ = "user"
-    user_id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(255), unique=True,
-                         nullable=False)
-    favorites  = db.Column(db.String(255))
+# class User(db.Model):
+#     __tablename__ = "user"
+#     user_id = db.Column(db.Integer, primary_key=True)
+#     username = db.Column(db.String(255), unique=True,
+#                          nullable=False)
+#     favorites  = db.Column(db.String(255))
 
-    def json(self):
-        return {"username": self.username,"favorites": self.favorites}
+#     def json(self):
+#         return {"username": self.username,"favorites": self.favorites}
 
 class Cinema(db.Model):
     __tablename__ = "cinema"
@@ -66,18 +69,17 @@ db.create_all()
 db.session.commit()
 
 # CreateUser API
-@app.route("/dbmaster/createUser", methods=["POST"])
-def createUser():
-    username = request.json['username']
+# @app.route("/dbmaster/createUser", methods=["POST"])
+# def createUser():
+#     username = request.json['username']
 
-    user = User(
-        username=username,
-        favorites=''
-    )
-    db.session.add(user)
-    db.session.commit()
-
-    return Response("Userdb created with great success" + username, status=200)
+#     user = User(
+#         username=username,
+#         favorites=''
+#     )
+#     db.session.add(user)
+#     db.session.commit()
+#     return Response("Userdb created with great success" + username, status=200)
 
 @app.route("/dbmaster/addmovie", methods=["POST"])
 def addmovie():
@@ -158,6 +160,35 @@ def editMovie():
     except:
         pass
     return Response("moviedb changed with great failure", status=350)
+
+@app.route("/dbmaster/initFav", methods=["POST"])
+def initFav():
+    username  = request.json['username']
+    init = {
+        'username': username,
+        'FavList':[],
+        }
+    r.set(username, json.dumps(init))
+    return Response("movie favorites list init", status=200)
+
+@app.route("/dbmaster/addtoFav", methods=["POST"])
+def addtoFav():
+    username = request.json['username']
+    movie_id = request.json['movie_id']
+    movies = json.loads(r.get(movie_id))
+    movies.FavList.append(movie_id)
+    updated = {
+        'username': username,
+        'FavList':movies.FavList,
+        }
+    r.set(username, json.dumps(updated))
+    return Response("movie added to favorites", status=350)
+
+@app.route("/dbmaster/getFav", methods=["GET"])
+def getFav():
+    username = request.json['username']
+    data = json.loads(r.get(username))
+    return jsonify(data)
 
 if __name__ == "__main__":
     app.run(debug=False)

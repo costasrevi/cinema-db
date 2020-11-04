@@ -1,13 +1,6 @@
 import React, { Component } from "react";
 import {
-  Container,
-  Button,
-  Col,
-  Row,
-  Table,
-  Dropdown,
-  DropdownButton,
-  ButtonGroup,
+  Container,Button,Col,Row,Table,Dropdown,Navbar,Nav,Form,FormControl,DropdownButton,ButtonGroup,
 } from "react-bootstrap";
 import { checkCookie, checkUser,checkConfirmed } from "../Authentication/cookies";
 import axios from "axios";
@@ -50,12 +43,22 @@ class AdminPanel extends Component {
     this.state = {
       username: checkCookie(),
       user_role: checkUser(),
+      confirmed: checkConfirmed(),
       users_list: [],
+      button1:true,
+      button2:true,
       users_fetched: false,
     };
     this.setState = this.setState.bind(this);
   }
-
+  componentDidMount() {    
+  if (this.state.user_role === "cinema_owner" && this.state.confirmed===true) {
+    this.setState({ button1:false });
+  }
+  if (this.state.user_role === "admin" && this.state.confirmed===true) {
+    this.setState({ button2:false });
+  }
+}
   fetchUsersList() {
     axios.get(url + "/auth/get_users").then((response) => {
       const users_list = response.data.users_list;
@@ -104,7 +107,20 @@ class AdminPanel extends Component {
 
   render() {
     return (
-      <Container bsPrefix="my-container">
+      <Container >
+        <Navbar bg="dark" variant="dark">
+        <Navbar.Brand href="#home">Upcoming Movies</Navbar.Brand>
+        <Nav className="mr-auto">
+          <Nav.Link href="./dashboard">Home</Nav.Link>
+          <Nav.Link disabled={this.state.button1} href="./editmovies">Edit Movies</Nav.Link>
+          <Nav.Link disabled={this.state.button2} href="./admin">Admin Panel</Nav.Link>
+        </Nav>
+        <Form inline>
+          <FormControl type="text" placeholder="Search" className="mr-sm-2" />
+          <Button variant="outline-info">Search</Button>
+          <Nav.Link href="./logout">Log out</Nav.Link>
+        </Form>
+        </Navbar>
         {this.state.users_fetched ? null : this.fetchUsersList()}
         <Row className="justify-content-md-center">
           <h4>
@@ -130,13 +146,13 @@ class AdminPanel extends Component {
           </Table>
         </Row>
         </div>
-        <Row className="justify-content-md-right">
+        {/* <Row className="justify-content-md-right">
           <Col md="auto">
             <Button className="dashboard" href="./dashboard">
               Go Back
             </Button>
           </Col>
-        </Row>
+        </Row> */}
       </Container>
     );
   }

@@ -16,7 +16,7 @@ class Register extends Component {
       email: "",
       name: "",
       surname: "",
-      role:"user",
+      role:"User",
       checkConfirmed: checkConfirmed(),
       isAuthenticated: checkCookie(),
     };

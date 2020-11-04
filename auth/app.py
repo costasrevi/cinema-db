@@ -63,8 +63,7 @@ user = db.session.query(User).filter_by(username=admin_user.username).first()
 if user is None:
     db.session.add(admin_user)
     db.session.commit()
-    initscoredb = requests.post(
-        "http://dbmaster:5002/dbmaster/createUser", json={"username": admin_user.username})
+    requests.post("http://dbmaster:5002/dbmaster/initFav", json={"username": admin_user.username})
 
 # CreateUser API
 @app.route("/auth/register", methods=["POST"])
@@ -95,8 +94,11 @@ def register():
             user_role="admin"
         elif user_role == "User":
             user_role="user"
-        else:
+        elif user_role == "cinema_owner":
             user_role="cinema_owner"
+        else:
+            error = 'A User role is wrong'
+            return Response(error, status=300)
         user = User(
             username=username,
             email=email,
@@ -109,8 +111,7 @@ def register():
         db.session.add(user)
         db.session.commit()
         # needs work  error handling if add user didnt work
-        #initscoredb = requests.post(
-        #    "http://gamemaster:5002/gamemaster/createUser", json={"username": username})
+        requests.post("http://dbmaster:5002/dbmaster/initFav", json={"username": username})
         token = encodeAuthToken(user.username, user.user_role,user.confirmed)
         return token
         # REMEMBER TO REMOVE DECODE FROM HERE BEFORE PRODUCTION

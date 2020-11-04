@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Container, Button, Col, Row, Table } from "react-bootstrap";
+import { Container, Button,Navbar,Nav,Form,FormControl, Col, Row, Table } from "react-bootstrap";
 import { checkCookie, checkUser ,checkConfirmed} from "../Authentication/cookies";
 import axios from "axios";
 
@@ -28,6 +28,8 @@ class DashboardPage extends Component {
       user_role: checkUser(),
       confirmed: checkConfirmed(),
       movie_list: [],
+      button1:true,
+      button2:true,
     };
     this.setState = this.setState.bind(this);
   }
@@ -38,34 +40,31 @@ class DashboardPage extends Component {
       console.log("movie_list fetched");
       this.setState({ movie_list });
     });
-  }
-
-  renderAdmin() {
-    if (this.state.user_role === "admin" && this.state.confirmed===true) {
-      return (
-        <Col md="auto">
-          <Button className="dashboard" href="./admin">
-            Admin Panel
-          </Button>
-        </Col>
-      );
-    }
     if (this.state.user_role === "cinema_owner" && this.state.confirmed===true) {
-      return (
-        <Col md="auto">
-          <Button className="dashboard" href="./editmovies">
-            Edit movies
-          </Button>
-        </Col>
-      );
+      this.setState({ button1:false });
     }
-
+    if (this.state.user_role === "admin" && this.state.confirmed===true) {
+      this.setState({ button2:false });
+    }
   }
-
 
   render() {
     return (
-      <Container bsPrefix="my-container">
+      <Container >      
+      <Navbar bg="dark" variant="dark">
+      <Navbar.Brand href="#home">Upcoming Movies</Navbar.Brand>
+        <Nav className="mr-auto">
+          <Nav.Link href="./dashboard">Home</Nav.Link>
+          <Nav.Link disabled={this.state.button1} href="./editmovies">Edit Movies</Nav.Link>
+          <Nav.Link disabled={this.state.button2} href="./admin">Admin Panel</Nav.Link>
+        </Nav>
+        <Form inline>
+          <FormControl type="text" placeholder="Search" className="mr-sm-2" />
+          <Button variant="outline-info">Search</Button>
+          <Nav.Link href="./logout">Log out</Nav.Link>
+        </Form>
+        </Navbar>
+   
         <Row className="justify-content-md-center">
           <Col md="auto">
             <h4>
@@ -80,8 +79,9 @@ class DashboardPage extends Component {
             </h4>
           </Col>
         </Row>
+        {/* <div class="table-wrapper-scroll-y my-custom-scrollbar"> */}
         <Row className="justify-content-md-center">
-          <Table responsive>
+          <Table class="my-custom-scrollbar" responsive striped bordered hover>
             <thead>
               <tr>
                 <th>Movie</th>
@@ -103,14 +103,7 @@ class DashboardPage extends Component {
             </tbody>
           </Table>
         </Row>
-        <Row className="justify-content-md-center">
-          {this.renderAdmin()}
-          <Col md="auto">
-            <Button className="dashboard" href="./logout">
-              Logout
-            </Button>
-          </Col>
-        </Row>
+        {/* </div> */}
       </Container>
     );
   }

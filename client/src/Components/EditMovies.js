@@ -7,7 +7,7 @@ import {
   Table,
   Modal,
   Input,
-  Form,
+  Form,Navbar,Nav,FormControl,
 } from "react-bootstrap";
 import { checkCookie, checkUser,checkConfirmed } from "../Authentication/cookies";
 import axios from "axios";
@@ -190,6 +190,8 @@ class EditMovies extends Component {
       user_role: checkUser(),
       confirmed: checkConfirmed(),
       movie_list: [],
+      button1:true,
+      button2:true,
       movie_fetched:false,
     };
     this.setState = this.setState.bind(this);
@@ -211,21 +213,40 @@ class EditMovies extends Component {
   }
 
   componentDidMount(){
+    if (this.state.user_role === "cinema_owner" && this.state.confirmed===true) {
+      this.setState({ button1:false });
+    }
+    if (this.state.user_role === "admin" && this.state.confirmed===true) {
+      this.setState({ button2:false });
+    }
     this.fetchMovieList()
   }
   
   render() {
     return (
-      <Container bsPrefix="my-container">
+      <Container >
+        <Navbar bg="dark" variant="dark">
+        <Navbar.Brand href="#home">Upcoming Movies</Navbar.Brand>
+        <Nav className="mr-auto">
+          <Nav.Link href="./dashboard">Home</Nav.Link>
+          <Nav.Link disabled={this.state.button1} href="./editmovies">Edit Movies</Nav.Link>
+          <Nav.Link disabled={this.state.button2} href="./admin">Admin Panel</Nav.Link>
+        </Nav>
+        <Form inline>
+          <FormControl type="text" placeholder="Search" className="mr-sm-2" />
+          <Button variant="outline-info">Search</Button>
+          <Nav.Link href="./logout">Log out</Nav.Link>
+        </Form>
+        </Navbar>
         {/* <Movies onfetched ={()=>(this.setState({movie_fetched:!this.state.movie_fetched}))}/> */}
         {/* {Movies.movie_fetched ? null : this.fetchMovieList()} */}
         <Row className="justify-content-md-center">
           <h4>
             Here you can edit the movies by clicking on them !
           </h4>
-        </Row>
+        </Row><div class="table-wrapper-scroll-y my-custom-scrollbar">
         <Row>
-          <Table responsive striped bordered hover>
+        <Table class="table-wrapper-scroll-y" responsive striped bordered hover>
           <thead>
             <tr><th>Title</th>
             <th>Start Date</th>
@@ -243,14 +264,7 @@ class EditMovies extends Component {
               ))}
             </tbody>
           </Table>
-        </Row>
-        <Row className="justify-content-md-right">
-          <Col md="auto">
-            <Button className="dashboard" href="./dashboard">
-              Go Back
-            </Button>
-          </Col>
-        </Row>
+        </Row></div>
       </Container>
     );
   }
