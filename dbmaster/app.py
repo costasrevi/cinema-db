@@ -4,16 +4,15 @@ from flask import Flask, jsonify, Response, request
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import and_
 from datetime import datetime as dt
-import redis
-
-r = redis.Redis(host=os.environ['REDIS_HOST'],
-                port=os.environ['REDIS_PORT'], db=os.environ['REDIS_DB'])
-
 import json
+import redis
+from sqlalchemy import or_
 
 # Initialize Application
 app = Flask(__name__)
 
+r = redis.Redis(host=os.environ['REDIS_HOST'],
+                port=os.environ['REDIS_PORT'], db=os.environ['REDIS_DB'])
 
 # Configuration of postgreSQL Database
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql+psycopg2://{user}:{password}@{host}:{port}/{db}'.format(
@@ -68,19 +67,6 @@ class Movies(db.Model):
 db.create_all()
 db.session.commit()
 
-# CreateUser API
-# @app.route("/dbmaster/createUser", methods=["POST"])
-# def createUser():
-#     username = request.json['username']
-
-#     user = User(
-#         username=username,
-#         favorites=''
-#     )
-#     db.session.add(user)
-#     db.session.commit()
-#     return Response("Userdb created with great success" + username, status=200)
-
 @app.route("/dbmaster/addmovie", methods=["POST"])
 def addmovie():
     title = request.json['title']
@@ -100,20 +86,28 @@ def addmovie():
 
     return Response("Userdb created with great success" + title, status=200)
 
-@app.route("/dbmaster/getmovies", methods=["GET"])
+@app.route("/dbmaster/getmovies", methods=["POST"])
 def getmovies():
-
-    temps = Movies.query.order_by(Movies.startDate.asc()).filter(Movies.endDate>dt.now()).all()
+    username = request.json['username']
+    temps = Movies.query.order_by(Movies.endDate.asc()).filter(Movies.endDate>dt.now()).all()
     data = []
+    movies = json.loads(r.get(username))
     for temp in temps:
-        data.append({'title': temp.title,'startDate': temp.startDate.strftime("%a %d/%m/%Y"),'endDate': temp.endDate.strftime("%a %d/%m/%Y"),'cinema': temp.cinema, 'category': temp.category})
+        current = 0
+        favorite=False
+        while current < len(movies.FavList):
+            current += 1
+            if movies.FavList[current] == temp.movie_id:
+                favorite=True
+                break
+        data.append({'movie_id': temp.movie_id,'title': temp.title,'startDate': temp.startDate.strftime("%a %d/%m/%Y"),'endDate': temp.endDate.strftime("%a %d/%m/%Y"),'cinema': temp.cinema, 'category': temp.category,'favorite':favorite})
     return jsonify(movies=data)
 
 @app.route("/dbmaster/getownermovies", methods=["POST"])
 def getownermovies():
     username = request.json['username']
     # cinemaname=Cinema.query.filter(Cinema.owner == username).first()
-    temps = Movies.query.order_by(Movies.startDate.asc()).filter(username == Movies.cinema).all()
+    temps = Movies.query.order_by(Movies.endDate.asc()).filter(username == Movies.cinema).all()
     data = []
     for temp in temps:
         data.append({'movie_id': temp.movie_id,'title': temp.title,'startDate': temp.startDate.strftime("%a %d/%m/%Y"),'endDate': temp.endDate.strftime("%a %d/%m/%Y"),'cinema': temp.cinema, 'category': temp.category})
@@ -175,20 +169,69 @@ def initFav():
 def addtoFav():
     username = request.json['username']
     movie_id = request.json['movie_id']
-    movies = json.loads(r.get(movie_id))
-    movies.FavList.append(movie_id)
-    updated = {
-        'username': username,
-        'FavList':movies.FavList,
-        }
-    r.set(username, json.dumps(updated))
-    return Response("movie added to favorites", status=350)
+    movies = json.loads(r.get(username))
+    if movie_id not in movies.FavList:
+        movies.FavList.append(movie_id)
+        updated = {
+            'username': username,
+            'FavList':movies.FavList,
+            }
+        r.set(username, json.dumps(updated))
+        return Response("movie added to favorites", status=200)
+    return Response("movie added to favorites fail", status=350)
+
+@app.route("/dbmaster/removeFav", methods=["POST"])
+def removeFav():
+    username = request.json['username']
+    movie_id = request.json['movie_id']
+    movies = json.loads(r.get(username))
+    if movie_id in movies.FavList:
+        movies.FavList.remove(movie_id)
+        updated = {
+            'username': username,
+            'FavList':movies.FavList,
+            }
+        r.set(username, json.dumps(updated))
+        return Response("movie remove to favorites", status=200)
+    return Response("movie remove to favorites fail", status=350)
+
 
 @app.route("/dbmaster/getFav", methods=["GET"])
 def getFav():
     username = request.json['username']
     data = json.loads(r.get(username))
-    return jsonify(data)
+    current = 0
+    movielist = []
+    while current < len(data.FavList):
+        temp=Movies.query.filter(Movies.movie_id==data.FavList[current]).first()
+        current += 1
+        if temp:
+            movielist.append({'movie_id': temp.movie_id,'title': temp.title,'startDate': temp.startDate.strftime("%a %d/%m/%Y"),'endDate': temp.endDate.strftime("%a %d/%m/%Y"),'cinema': temp.cinema, 'category': temp.category})
+    return jsonify(movies=movielist)
+
+@app.route("/dbmaster/getspecmovies", methods=["POST"])
+def getspecmovies():
+    search = request.json['search']
+
+    search = "%{}%".format(search)
+    temps = Movies.query.order_by(Movies.endDate.asc()).filter(or_(Movies.title.like(search), Movies.cinema.like(search),Movies.category.like(search))).all()
+    data = []
+    for temp in temps:
+        data.append({'movie_id': temp.movie_id,'title': temp.title,'startDate': temp.startDate.strftime("%a %d/%m/%Y"),'endDate': temp.endDate.strftime("%a %d/%m/%Y"),'cinema': temp.cinema, 'category': temp.category})
+    return jsonify(movies=data)
+
+
+@app.route("/dbmaster/getspecmoviesowner", methods=["POST"])
+def getspecmoviesowner():
+    search = request.json['search']
+    owner = request.json['owner']
+    search = "%{}%".format(search)
+    temps = Movies.query.order_by(Movies.endDate.asc()).filter(and_(or_(Movies.title.like(search), Movies.cinema.like(search),Movies.category.like(search)),Movies.cinema == owner)).all()
+    data = []
+    for temp in temps:
+        data.append({'movie_id': temp.movie_id,'title': temp.title,'startDate': temp.startDate.strftime("%a %d/%m/%Y"),'endDate': temp.endDate.strftime("%a %d/%m/%Y"),'cinema': temp.cinema, 'category': temp.category})
+    return jsonify(movies=data)
+
 
 if __name__ == "__main__":
     app.run(debug=False)

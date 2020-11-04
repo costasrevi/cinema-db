@@ -195,6 +195,17 @@ class EditMovies extends Component {
       movie_fetched:false,
     };
     this.setState = this.setState.bind(this);
+    this.handleChange = this.handleChange.bind(this);
+  }
+  
+  handleChange(event) {
+    axios.post(url + "/dbmaster/getspecmoviesowner", {search:event.target.value,owner:this.state.username}).then((response) => {
+      const movie_list = response.data.movies;
+      console.log("movie_list fetched");
+      this.setState({ movie_list });
+    }, (error) => {
+      console.log("asdasd");
+    });
   }
 
   fetchMovieList(){
@@ -226,15 +237,14 @@ class EditMovies extends Component {
     return (
       <Container >
         <Navbar bg="dark" variant="dark">
-        <Navbar.Brand href="#home">Upcoming Movies</Navbar.Brand>
+        <Navbar.Brand href="./dashboard">Upcoming Movies</Navbar.Brand>
         <Nav className="mr-auto">
           <Nav.Link href="./dashboard">Home</Nav.Link>
           <Nav.Link disabled={this.state.button1} href="./editmovies">Edit Movies</Nav.Link>
           <Nav.Link disabled={this.state.button2} href="./admin">Admin Panel</Nav.Link>
         </Nav>
         <Form inline>
-          <FormControl type="text" placeholder="Search" className="mr-sm-2" />
-          <Button variant="outline-info">Search</Button>
+          <FormControl type="text" placeholder="Search" className="mr-sm-2" onChange={this.handleChange} />
           <Nav.Link href="./logout">Log out</Nav.Link>
         </Form>
         </Navbar>
@@ -244,15 +254,16 @@ class EditMovies extends Component {
           <h4>
             Here you can edit the movies by clicking on them !
           </h4>
-        </Row><div class="table-wrapper-scroll-y my-custom-scrollbar">
-        <Row>
-        <Table class="table-wrapper-scroll-y" responsive striped bordered hover>
+        </Row>
+        {/* <div class="table-wrapper-scroll-y my-custom-scrollbar"> */}
+        <Row className="justify-content-md-center">
+        <Table responsive="lg" striped bordered hover>
           <thead>
             <tr><th>Title</th>
             <th>Start Date</th>
             <th>End Date</th>
             <th>Category</th>
-            <th><Button className="dashboard" href="./addMovie">Add Movie</Button></th></tr>
+            <th><Button href="./addMovie">Add Movie</Button></th></tr>
           </thead>
             <tbody>
               {this.state.movie_list.map((movies, index) => (
@@ -264,7 +275,8 @@ class EditMovies extends Component {
               ))}
             </tbody>
           </Table>
-        </Row></div>
+        </Row>
+        {/* </div> */}
       </Container>
     );
   }

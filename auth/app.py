@@ -3,7 +3,7 @@ import requests
 import jwt
 import datetime
 import json
-
+from sqlalchemy import or_
 from flask import Flask, jsonify, Response, request
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -202,6 +202,21 @@ def get_users():
             temp = "False" 
         users_list.append({'username': user.username,
                            'email': user.email,'surname': user.surname,'name': user.name,'confirmed': temp, 'user_role': user.user_role})
+    return jsonify(users_list=users_list)
+
+@app.route("/auth/getspecusers", methods=["POST"])
+def getspecmovies():
+    search = request.json['search']
+    search = "%{}%".format(search)
+    temps = db.session.query(User).order_by(User.username.asc()).filter(or_(User.username.like(search),User.email.like(search),User.surname.like(search), User.name.like(search),User.user_role.like(search))).all()
+    users_list = []
+    for temp in temps:
+        if user.confirmed == True:
+            confirmed = "True"
+        else:
+            confirmed = "False" 
+        users_list.append({'username': user.username,
+                           'email': user.email,'surname': user.surname,'name': user.name,'confirmed': confirmed, 'user_role': user.user_role})
     return jsonify(users_list=users_list)
 
 @app.route("/dbmaster/DeleteUser", methods=["POST"])

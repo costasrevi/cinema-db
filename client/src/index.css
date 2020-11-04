@@ -54,15 +54,16 @@ body {
   margin-top: 20px;
 }
 
-.table-wrapper-scroll-y {
+/* .table-wrapper-scroll-y {
   display: block;
   }
   
 .my-custom-scrollbar {
   position: relative;
   height: 600px;
-  overflow: auto;
-  }
+  overflow-x: hidden; 
+  overflow-y: auto; 
+  } */
 
 @media only screen and (max-width: 680px) {
   .gamesquare {

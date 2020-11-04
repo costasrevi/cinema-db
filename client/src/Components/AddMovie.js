@@ -61,7 +61,6 @@ class AddMovie extends Component {
         alert("addmovie Unsuccesful. Please check your data.");
       }
     );
-    this.setState({ title: "", startDate: null, endDate: null,cinemaname: "" ,category:""});
   };
   
   render() {
