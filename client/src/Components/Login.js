@@ -47,7 +47,7 @@ class Login extends Component {
         alert("Authentication Unsuccesful. Please check your credentials.");
       }
     );
-    this.setState({ username: "", password: "", confirmed: false });
+    // this.setState({ username: "", password: "", confirmed: false });
   };
 
   render() {

@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import {
-  Container,Button,Col,Row,Table,Dropdown,Navbar,Nav,Form,FormControl,DropdownButton,ButtonGroup,
+  Container,Button,Row,Table,Dropdown,Navbar,Nav,Form,FormControl,DropdownButton,ButtonGroup,
 } from "react-bootstrap";
 import { checkCookie, checkUser,checkConfirmed } from "../Authentication/cookies";
 import axios from "axios";

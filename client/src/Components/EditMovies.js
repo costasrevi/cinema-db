@@ -6,7 +6,6 @@ import {
   Row,
   Table,
   Modal,
-  Input,
   Form,Navbar,Nav,FormControl,
 } from "react-bootstrap";
 import { checkCookie, checkUser,checkConfirmed } from "../Authentication/cookies";

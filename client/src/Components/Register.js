@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { Redirect } from "react-router-dom";
-import { Form, Button, Col,DropdownButton,ButtonGroup,Dropdown } from "react-bootstrap";
+import { Form, Button, Col } from "react-bootstrap";
 import axios from "axios";
 
 import { checkCookie, setCookie,checkConfirmed } from "../Authentication/cookies";

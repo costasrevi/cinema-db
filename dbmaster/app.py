@@ -91,16 +91,20 @@ def getmovies():
     username = request.json['username']
     temps = Movies.query.order_by(Movies.endDate.asc()).filter(Movies.endDate>dt.now()).all()
     data = []
-    movies = json.loads(r.get(username))
-    for temp in temps:
-        current = 0
-        favorite=False
-        while current < len(movies.FavList):
-            current += 1
-            if movies.FavList[current] == temp.movie_id:
-                favorite=True
-                break
-        data.append({'movie_id': temp.movie_id,'title': temp.title,'startDate': temp.startDate.strftime("%a %d/%m/%Y"),'endDate': temp.endDate.strftime("%a %d/%m/%Y"),'cinema': temp.cinema, 'category': temp.category,'favorite':favorite})
+    if (r.exists(username)):
+        movies = json.loads(r.get(username))
+        for temp in temps:
+            current = 0
+            favorite=False
+            while current < len(movies["FavList"]):
+                if movies["FavList"][current] == temp.movie_id:
+                    favorite=True
+                    break
+                current += 1
+            data.append({'movie_id': temp.movie_id,'title': temp.title,'startDate': temp.startDate.strftime("%a %d/%m/%Y"),'endDate': temp.endDate.strftime("%a %d/%m/%Y"),'cinema': temp.cinema, 'category': temp.category,'favorite':favorite})
+    else:
+        for temp in temps:
+            data.append({'movie_id': temp.movie_id,'title': temp.title,'startDate': temp.startDate.strftime("%a %d/%m/%Y"),'endDate': temp.endDate.strftime("%a %d/%m/%Y"),'cinema': temp.cinema, 'category': temp.category})
     return jsonify(movies=data)
 
 @app.route("/dbmaster/getownermovies", methods=["POST"])
@@ -155,70 +159,92 @@ def editMovie():
         pass
     return Response("moviedb changed with great failure", status=350)
 
-@app.route("/dbmaster/initFav", methods=["POST"])
-def initFav():
-    username  = request.json['username']
-    init = {
-        'username': username,
-        'FavList':[],
-        }
-    r.set(username, json.dumps(init))
-    return Response("movie favorites list init", status=200)
+# @app.route("/dbmaster/initFav", methods=["POST"])
+# def initFav():
+#     username  = request.json['username']
+#     init = {
+#         'username': username,
+#         'FavList':[],
+#         }
+#     r.set(username, json.dumps(init))
+#     return Response("movie favorites list init", status=200)
 
 @app.route("/dbmaster/addtoFav", methods=["POST"])
 def addtoFav():
     username = request.json['username']
     movie_id = request.json['movie_id']
-    movies = json.loads(r.get(username))
-    if movie_id not in movies.FavList:
-        movies.FavList.append(movie_id)
+    if (r.exists(username)):
+        movies = json.loads(r.get(username))
+        if movie_id not in movies["FavList"]:
+            movies["FavList"].append(movie_id)
+            updated = {
+                'FavList':movies["FavList"],
+                }
+            r.set(username, json.dumps(updated))
+            return Response("movie added to favorites", status=200)
+    else:
         updated = {
             'username': username,
-            'FavList':movies.FavList,
+            'FavList':[],
             }
         r.set(username, json.dumps(updated))
         return Response("movie added to favorites", status=200)
-    return Response("movie added to favorites fail", status=350)
+    # return Response("movie added to favorites fail", status=350)
 
 @app.route("/dbmaster/removeFav", methods=["POST"])
 def removeFav():
     username = request.json['username']
     movie_id = request.json['movie_id']
-    movies = json.loads(r.get(username))
-    if movie_id in movies.FavList:
-        movies.FavList.remove(movie_id)
-        updated = {
-            'username': username,
-            'FavList':movies.FavList,
-            }
-        r.set(username, json.dumps(updated))
-        return Response("movie remove to favorites", status=200)
+    if (r.exists(username)):
+        movies = json.loads(r.get(username))
+        if movie_id in movies["FavList"]:
+            movies["FavList"].remove(movie_id)
+            updated = {
+                'FavList':movies["FavList"],
+                }
+            r.set(username, json.dumps(updated))
+            return Response("movie remove to favorites", status=200)
     return Response("movie remove to favorites fail", status=350)
 
 
-@app.route("/dbmaster/getFav", methods=["GET"])
+@app.route("/dbmaster/getFav", methods=["POST"])
 def getFav():
     username = request.json['username']
-    data = json.loads(r.get(username))
-    current = 0
-    movielist = []
-    while current < len(data.FavList):
-        temp=Movies.query.filter(Movies.movie_id==data.FavList[current]).first()
-        current += 1
-        if temp:
-            movielist.append({'movie_id': temp.movie_id,'title': temp.title,'startDate': temp.startDate.strftime("%a %d/%m/%Y"),'endDate': temp.endDate.strftime("%a %d/%m/%Y"),'cinema': temp.cinema, 'category': temp.category})
-    return jsonify(movies=movielist)
+    if (r.exists(username)):
+        data = json.loads(r.get(username))
+        current = 0
+        movielist = []
+        while current < len(data["FavList"]):
+            temp=Movies.query.order_by(Movies.endDate.asc()).filter(Movies.movie_id==data["FavList"][current]).first()
+            current += 1
+            if temp:
+                movielist.append({'movie_id': temp.movie_id,'title': temp.title,'startDate': temp.startDate.strftime("%a %d/%m/%Y"),'endDate': temp.endDate.strftime("%a %d/%m/%Y"),'cinema': temp.cinema, 'category': temp.category,'favorite':True})
+        return jsonify(movies=movielist)
+    return Response("movie get favorites fail", status=350)
 
 @app.route("/dbmaster/getspecmovies", methods=["POST"])
 def getspecmovies():
     search = request.json['search']
-
     search = "%{}%".format(search)
-    temps = Movies.query.order_by(Movies.endDate.asc()).filter(or_(Movies.title.like(search), Movies.cinema.like(search),Movies.category.like(search))).all()
-    data = []
-    for temp in temps:
-        data.append({'movie_id': temp.movie_id,'title': temp.title,'startDate': temp.startDate.strftime("%a %d/%m/%Y"),'endDate': temp.endDate.strftime("%a %d/%m/%Y"),'cinema': temp.cinema, 'category': temp.category})
-    return jsonify(movies=data)
+    username = request.json['username']
+    favorite = request.json['favorite']
+    if favorite=="True":
+        if (r.exists(username)):
+            data = json.loads(r.get(username))
+            current = 0
+            movielist = []
+            while current < len(data["FavList"]):
+                temp=Movies.query.filter(and_(Movies.movie_id==data["FavList"][current],or_(Movies.title.like(search), Movies.cinema.like(search),Movies.category.like(search)))).first()
+                current += 1
+                if temp:
+                    movielist.append({'movie_id': temp.movie_id,'title': temp.title,'startDate': temp.startDate.strftime("%a %d/%m/%Y"),'endDate': temp.endDate.strftime("%a %d/%m/%Y"),'cinema': temp.cinema, 'category': temp.category,'favorite':True})
+            return jsonify(movies=movielist)
+    else:
+        temps = Movies.query.order_by(Movies.endDate.asc()).filter(or_(Movies.title.like(search), Movies.cinema.like(search),Movies.category.like(search))).all()
+        data = []
+        for temp in temps:
+            data.append({'movie_id': temp.movie_id,'title': temp.title,'startDate': temp.startDate.strftime("%a %d/%m/%Y"),'endDate': temp.endDate.strftime("%a %d/%m/%Y"),'cinema': temp.cinema, 'category': temp.category})
+        return jsonify(movies=data)
 
 
 @app.route("/dbmaster/getspecmoviesowner", methods=["POST"])

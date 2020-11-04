@@ -1,5 +1,5 @@
 import React, { Component ,useState} from "react";
-import { Container,ToggleButton, Button,Navbar,Nav,Form,FormControl, Col, Row, Table } from "react-bootstrap";
+import { Container,ToggleButton,Navbar,Nav,Form,FormControl, Col, Row, Table } from "react-bootstrap";
 import { checkCookie, checkUser ,checkConfirmed} from "../Authentication/cookies";
 import axios from "axios";
 
@@ -7,30 +7,36 @@ const url = process.env.REACT_APP_SERVICE_URL;
 
 function Movies(props) {
   const [checked, setChecked] = useState(false);
-  const [check, setCheck] = useState();
   console.log(props.movies);
   
   const handleCheck = (check) => {
-  if (check){
-    setChecked(true);
-    console.log("props.movies.movie_id",props.movies.movie_id);
-    axios.post(url + "/dbmaster/addtoFav",{
-      movie_id:props.movies.movie_id,
-      username:checkCookie(),
-    }).then((response) => {
-      console.log("added to fav  success");
-    },(error) => {console.log("added to fav fail");});
-  }else{
-    setChecked(false);
-    console.log("props.movies.movie_id",props.movies.movie_id);
-    axios.post(url + "/dbmaster/removeFav",{
-      movie_id:props.movies.movie_id,
-      username:checkCookie(),
-    }).then((response) => {
-      console.log("remove to fav  success");
-    },(error) => {console.log("remove to fav  fail");});
-  }
-};
+    if (!check){
+      setChecked(true);
+      props.movies.favorite=true;
+      console.log("props.movies.movie_id",props.movies.movie_id,check);
+      axios.post(url + "/dbmaster/addtoFav",{
+        movie_id:props.movies.movie_id,
+        username:checkCookie(),
+      }).then((response) => {
+        console.log("added to fav  success");
+      },(error) => {console.log("added to fav fail");});
+    }else{
+      setChecked(false);
+      props.movies.favorite=false;
+      console.log("props.movies.movie_id",props.movies.movie_id);
+      axios.post(url + "/dbmaster/removeFav",{
+        movie_id:props.movies.movie_id,
+        username:checkCookie(),
+      }).then((response) => {
+        console.log("remove to fav  success");
+      },(error) => {console.log("remove to fav  fail");});
+    }
+    // axios.post(url + "/dbmaster/getmovies",{username:checkCookie()}).then((response) => {
+    //   const movie_list = response.data.movies;
+    //   console.log("movie_list fetched");
+    //   this.setState({ movie_list });
+    // });
+  };
   return (
     <tr>
       <td>{props.movies.title}</td>
@@ -38,13 +44,14 @@ function Movies(props) {
       <td>{props.movies.endDate}</td>
       <td>{props.movies.cinema}</td>
       <td>{props.movies.category}</td>
-      <td><ToggleButton
+      <td>
+        {/* {props.movies.favorite ? setChecked(true): setChecked(false)} */}
+        <ToggleButton
           type="checkbox"
           variant="secondary"
           checked={props.movies.favorite}
           value="1"
-          onChange={(e) => handleCheck(e.currentTarget.checked)}>
-          {check}
+          onChange={(e) => handleCheck(props.movies.favorite)}>
         </ToggleButton></td>
     </tr>
   );
@@ -64,7 +71,8 @@ class DashboardPage extends Component {
       endDate:"",
       movie_list: [],
       button1:true,
-      checked:false,
+      moviesfetch:false,
+      checked2:false,
       button2:true,
     };
     this.setState = this.setState.bind(this);
@@ -76,13 +84,24 @@ class DashboardPage extends Component {
   }
 
   handleChange(event) {
-    axios.post(url + "/dbmaster/getspecmovies", {search:event.target.value}).then((response) => {
+    if (this.state.checked2){
+      axios.post(url + "/dbmaster/getspecmovies", {search:event.target.value,favorite:"True",username:this.state.username}).then((response) => {
       const movie_list = response.data.movies;
       console.log("movie_list fetched");
       this.setState({ movie_list });
     }, (error) => {
       console.log("Gamemaster/GetScores - Axios Error.");
     });
+    }else{
+      axios.post(url + "/dbmaster/getspecmovies", {search:event.target.value,favorite:"False",username:this.state.username}).then((response) => {
+        const movie_list = response.data.movies;
+        console.log("movie_list fetched");
+        this.setState({ movie_list });
+      }, (error) => {
+        console.log("Gamemaster/GetScores - Axios Error.");
+      });
+    }
+
   }
 
   searchEndDate(event) {
@@ -106,11 +125,13 @@ class DashboardPage extends Component {
   }
 
   componentDidMount() {
-    axios.post(url + "/dbmaster/getmovies",{username:checkCookie()}).then((response) => {
-      const movie_list = response.data.movies;
-      console.log("movie_list fetched");
-      this.setState({ movie_list });
-    });
+    if (!this.state.moviesfetch){
+      axios.post(url + "/dbmaster/getmovies",{username:checkCookie()}).then((response) => {
+        const movie_list = response.data.movies;
+        console.log("movie_list fetched");
+        this.setState({ movie_list ,moviesfetch:true});
+      });
+    }
     if (this.state.user_role === "cinema_owner" && this.state.confirmed===true) {
       this.setState({ button1:false });
     }
@@ -119,25 +140,25 @@ class DashboardPage extends Component {
     }
   }
 
-  handleChecked(check){
-    if (check){
-      this.setState({ checked:false,check:"Not showing Favorites"});
-      axios.get(url + "/dbmaster/getmovies",{username:checkCookie()}).then((response) => {
+  handleChecked(){
+    if (this.state.checked2===true){
+      this.setState({ checked2:false });
+      axios.post(url + "/dbmaster/getmovies",{username:checkCookie()}).then((response) => {
         const movie_list = response.data.movies;
         console.log("movie_list fetched");
         this.setState({ movie_list });
       });
-    }else{
-      this.setState({ checked:true,check:"Showing Favorites"});
-      axios.get(url + "/dbmaster/getFav").then((response) => {
+    }else {
+      this.setState({ checked2:true});
+      axios.post(url + "/dbmaster/getFav",{username:checkCookie()}).then((response) => {
         const movie_list = response.data.movies;
         console.log("movie_list fetched");
-        this.setState({ movie_list });
+        this.setState({ movie_list});
+      }, (error) => {
+        alert("No favorites movies yet");
       });
     }
   }
-
-
 
   render() {
     return (
@@ -183,9 +204,9 @@ class DashboardPage extends Component {
                 <th><ToggleButton
                 type="checkbox"
                 variant="secondary"
-                checked={this.checked}
+                checked={this.state.checked2}
                 value="1"
-                onChange={(e) => this.handleChecked(e.currentTarget.checked)}>
+                onChange={(e) => this.handleChecked()}>
                 Favorites
                 </ToggleButton></th>
               </tr>
