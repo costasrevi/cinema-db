@@ -25,8 +25,6 @@ class Register extends Component {
   }
 
   handleChange(event) {
-    // check it out: we get the event.target.name (which will be either "username" or "password")
-    // and use it to target the key on our `state` object with the same name, using bracket syntax
     this.setState({ [event.target.name]: event.target.value });
   }
 
@@ -114,24 +112,12 @@ class Register extends Component {
             placeholder="Enter password"
             onChange={this.handleChange}
           />
-        </Form.Group>
-        {/* <Form.Group controlId="formBasicPassword">
-        <Form.Label>{this.state.role}</Form.Label>
-          <DropdownButton
-            as={ButtonGroup}
-            title="Change Role"
-            id="bg-nested-dropdown"
-          >
-            <Dropdown.Item onClick={this.handleCinema_owner()}>Choose Cinema Owner</Dropdown.Item>
-            <Dropdown.Item onClick={this.handleAdmin()}>Make Cinema owner</Dropdown.Item>
-            <Dropdown.Item onClick={this.handleUser()}>Make Cinema owner</Dropdown.Item>
-          </DropdownButton>
-        </Form.Group> */
+        </Form.Group>{
         <select value={this.state.role} onChange={this.handleChange2}>
         <option value="User">User</option>
         <option value="Admin">Admin</option>
         <option value="cinema_owner">Cinema Owner</option>
-      </select>}
+        </select>}
         <Form.Row>
           <Col>
             <Button variant="primary" type="submit" onClick={this.handleSubmit}>

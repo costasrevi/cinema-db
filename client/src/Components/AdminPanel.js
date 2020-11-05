@@ -148,13 +148,12 @@ class AdminPanel extends Component {
           </Form>
           </Navbar>
           {this.state.users_fetched ? null : this.fetchUsersList()}
-          <Row className="admin-panel" >
-            <h4>
+          <Row className="justify-content-md-center" >
+            <h4 className="admin-panel">
               Good to have you back {this.state.username}! This is your admin
               panel. You can promote users to cinemaowners or Admins!
             </h4>
           </Row>
-          {/* <div class="table-wrapper-scroll-y my-custom-scrollbar"> */}
           <Row className="justify-content-md-center">
             <Table  responsive="lg" striped bordered hover>
               <thead>
@@ -185,14 +184,6 @@ class AdminPanel extends Component {
               </tbody>
             </Table>
           </Row>
-          {/* </div> */}
-          {/* <Row className="justify-content-md-right">
-            <Col md="auto">
-              <Button className="dashboard" href="./dashboard">
-                Go Back
-              </Button>
-            </Col>
-          </Row> */}
         </Container>
       );
     }

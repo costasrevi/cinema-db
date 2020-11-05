@@ -2,15 +2,9 @@ import React, { Component } from "react";
 import { Redirect } from "react-router-dom";
 import { Form, Button, Col } from "react-bootstrap";
 import axios from "axios";
-
-// import DatePicker from "react-datepicker";
-//import DateRangePicker from '@bit/wilsonhuynh.wh-app.date-range-picker';
 import 'react-dates/initialize';
 import { DateRangePicker } from 'react-dates';
 import 'react-dates/lib/css/_datepicker.css';
- 
-// import "react-datepicker/dist/react-datepicker.css";
-
 import { checkCookie, checkowner } from "../Authentication/cookies";
 
 const url = process.env.REACT_APP_SERVICE_URL;
@@ -32,8 +26,6 @@ class AddMovie extends Component {
   }
 
   handleChange(event) {
-    // check it out: we get the event.target.name (which will be either "username" or "password")
-    // and use it to target the key on our `state` object with the same name, using bracket syntax
     this.setState({ [event.target.name]: event.target.value });
   }
 

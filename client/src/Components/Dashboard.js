@@ -1,4 +1,4 @@
-import React, { Component ,useState} from "react";
+import React, { Component} from "react";
 import { Container,ToggleButton,Navbar,Nav,Form,FormControl, Col, Row, Table } from "react-bootstrap";
 import { checkCookie, checkUser ,checkConfirmed,checkCookieandconfirm} from "../Authentication/cookies";
 import { Redirect } from "react-router-dom";
@@ -7,12 +7,9 @@ import axios from "axios";
 const url = process.env.REACT_APP_SERVICE_URL;
 
 function Movies(props) {
-  // const [checked, setChecked] = useState(false);
-  console.log(props.movies);
   
   const handleCheck = (check) => {
     if (!check){
-      // setChecked(true);
       props.movies.favorite=true;
       console.log("props.movies.movie_id",props.movies.movie_id,check);
       axios.post(url + "/dbmaster/addtoFav",{
@@ -22,7 +19,7 @@ function Movies(props) {
         console.log("added to fav  success");
       },(error) => {console.log("added to fav fail");});
     }else{
-      // setChecked(false);
+
       props.movies.favorite=false;
       console.log("props.movies.movie_id",props.movies.movie_id);
       axios.post(url + "/dbmaster/removeFav",{
@@ -32,11 +29,6 @@ function Movies(props) {
         console.log("remove to fav  success");
       },(error) => {console.log("remove to fav  fail");});
     }
-    // axios.post(url + "/dbmaster/getmovies",{username:checkCookie()}).then((response) => {
-    //   const movie_list = response.data.movies;
-    //   console.log("movie_list fetched");
-    //   this.setState({ movie_list });
-    // });
   };
   return (
     <tr>
@@ -46,7 +38,6 @@ function Movies(props) {
       <td>{props.movies.cinema}</td>
       <td>{props.movies.category}</td>
       <td>
-        {/* {props.movies.favorite ? setChecked(true): setChecked(false)} */}
         <ToggleButton
           type="checkbox"
           variant="secondary"
@@ -78,20 +69,12 @@ class DashboardPage extends Component {
       button2:true,
     };
     this.setState = this.setState.bind(this);
-    // this.handleChange = this.handleChange.bind(this);
     this.handleChange2 = this.handleChange2.bind(this);
     this.handleChange3 = this.handleChange3.bind(this);
     this.handleChange4 = this.handleChange4.bind(this);
-    // this.handleSubmit = this.handleSubmit.bind(this);
     this.handleChecked =this.handleChecked.bind(this);
   }
-  // handleChange(event) {
-  //   this.setState({startDate: event.target.value});
-  //   setTimeout(() => {
-  //     this.handleChange4();
-  //   }, 20);
-  //   // this.handleChange4();
-  // }
+
   handleChange2(event) {
     this.setState({endDate: event.target.value});
     setTimeout(() => {
@@ -125,26 +108,6 @@ class DashboardPage extends Component {
       });
     }
   }
-
-  // handlesubmit() {
-  //   if (this.state.checked2){
-  //     axios.post(url + "/dbmaster/getspecmovies", {startDate:this.state.startDate,endDate:this.state.endDate,search:"",favorite:"True",username:this.state.username}).then((response) => {
-  //     const movie_list = response.data.movies;
-  //     console.log("movie_list fetched");
-  //     this.setState({ movie_list });
-  //   }, (error) => {
-  //     console.log("Gamemaster/GetScores - Axios Error.");
-  //   });
-  //   }else{
-  //     axios.post(url + "/dbmaster/getspecmovies", {startDate:this.state.startDate,endDate:this.state.endDate,search:"",favorite:"False",username:this.state.username}).then((response) => {
-  //       const movie_list = response.data.movies;
-  //       console.log("movie_list fetched");
-  //       this.setState({ movie_list });
-  //     }, (error) => {
-  //       console.log("Gamemaster/GetScores - Axios Error.");
-  //     });
-  //   }
-  // }
 
   componentDidMount() {
     if (!this.state.moviesfetch){
@@ -197,9 +160,7 @@ class DashboardPage extends Component {
                 <Nav.Link disabled={this.state.button2} href="./admin">Admin Panel</Nav.Link>
               </Nav>
               <Form inline>
-                {/* <input type="date" value={this.state.startDate} onChange={this.handleChange}></input> */}
                 <input type="date" value={this.state.endDate} onChange={this.handleChange2}></input>
-                {/* <Button variant="outline-info" onClick={this.handleSubmit}>Filter Dates</Button> */}
                 <FormControl type="text" placeholder="Search" value={this.state.search} className="mr-sm-2" onChange={this.handleChange3} />
                 <Nav.Link href="./logout">Log out</Nav.Link>
               </Form>
@@ -218,7 +179,6 @@ class DashboardPage extends Component {
                   </h4>
                 </Col>
               </Row>
-              {/* <div class="table-wrapper-scroll-y my-custom-scrollbar"> */}
               <Row className="justify-content-md-center">
                 <Table responsive="lg" striped bordered hover>
                   <thead>
@@ -242,7 +202,6 @@ class DashboardPage extends Component {
                   {this.state.movie_list.map((movies, index) => (
                       <Movies
                         key={index}
-                        // onClickFav={() => this.handleClick(movies)}
                         movies={movies}
                       />
                     )
@@ -250,7 +209,6 @@ class DashboardPage extends Component {
                   </tbody>
                 </Table>
               </Row>
-              {/* </div> */}
             </Container>
           );
     }

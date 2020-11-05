@@ -1,7 +1,5 @@
 import React, { Component  } from "react";
-// import { Redirect } from "react-router-dom";
 import { Container,    Button,  Row,Col, } from "react-bootstrap";
-
 import { checkCookie,checkUser,checkConfirmed } from "../Authentication/cookies";
 
 

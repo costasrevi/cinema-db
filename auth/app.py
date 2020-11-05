@@ -50,6 +50,7 @@ class User(db.Model):
 db.create_all()
 db.session.commit()
 
+#adding default user admin
 admin_user = User(
     username='admin',
     name='admin',
@@ -63,9 +64,9 @@ user = db.session.query(User).filter_by(username=admin_user.username).first()
 if user is None:
     db.session.add(admin_user)
     db.session.commit()
-    # init = requests.post("http://dbmaster:5002/dbmaster/initFav", json={"username": admin_user.username})
 
-# CreateUser API
+
+# CreateUser API to register a user
 @app.route("/auth/register", methods=["POST"])
 def register():
     username = request.json['username']
@@ -110,15 +111,11 @@ def register():
         )
         db.session.add(user)
         db.session.commit()
-        # needs work  error handling if add user didnt work
-        # init = requests.post("http://dbmaster:5002/dbmaster/initFav", json={"username": username})
         token = encodeAuthToken(user.username, user.user_role,user.confirmed)
         return token
-        # REMEMBER TO REMOVE DECODE FROM HERE BEFORE PRODUCTION
-        # dec = decodeAuthToken(token)
-        # return Response("User created with token"+str(dec), status=200)
 
 
+#handling login of user and returning token 
 @app.route("/auth/login", methods=["POST"])
 def login():
     username = request.json['username']
@@ -136,11 +133,8 @@ def login():
         return Response(error, status=400)
     token = encodeAuthToken(user.username, user.user_role,user.confirmed)
     return token
-    # REMEMBER TO REMOVE DECODE FROM HERE BEFORE PRODUCTION
-    # dec = decodeAuthToken(token)
-    # return Response('User Authenticated with token ' + str(dec), status=200)
 
-
+#checking the token
 @app.route("/auth/check_token", methods=["POST"])
 def check_token():
     token = request.json['token']
@@ -154,7 +148,7 @@ def check_token():
     }
     return jsonify(response)
 
-
+#changing the role of the user
 @app.route("/auth/change_role", methods=["POST"])
 def change_role():
     username = request.json['username']
@@ -175,6 +169,7 @@ def change_role():
     token = encodeAuthToken(user.username, user.user_role,user.confirmed)
     return token
 
+#confirming or unconfirm any user
 @app.route("/auth/confirm_role", methods=["POST"])
 def confirm_role():
     username = request.json['username']
@@ -191,6 +186,7 @@ def confirm_role():
     token = encodeAuthToken(user.username, user.user_role,user.confirmed)
     return token
 
+#getting all the users
 @app.route("/auth/get_users", methods=['GET'])
 def get_users():
     users = db.session.query(User).order_by(User.username.asc()).all()
@@ -204,6 +200,7 @@ def get_users():
                            'email': user.email,'surname': user.surname,'name': user.name,'confirmed': temp, 'user_role': user.user_role})
     return jsonify(users_list=users_list)
 
+#getting specific users depending of the search parametr
 @app.route("/auth/getspecusers", methods=["POST"])
 def getspecusers():
     search = request.json['search']  
@@ -229,6 +226,7 @@ def getspecusers():
                            'email': temp.email,'surname': temp.surname,'name': temp.name,'confirmed': confirmed, 'user_role': temp.user_role})
     return jsonify(users_list=users_list)
 
+#deleting a user from the db
 @app.route("/auth/DeleteUser", methods=["POST"])
 def DeleteUser():
     username = request.json['username']
@@ -254,7 +252,7 @@ def encodeAuthToken(username, user_role,confirmed):
         print(e)
         return e
 
-
+#decoding the authentication token
 def decodeAuthToken(token):
     try:
         payload = jwt.decode(

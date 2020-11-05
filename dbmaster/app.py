@@ -11,6 +11,7 @@ from sqlalchemy import or_
 # Initialize Application
 app = Flask(__name__)
 
+# Initialize connection to redis.The redis db is used to store a list of favorites beacuse it doesnt have constat size
 r = redis.Redis(host=os.environ['REDIS_HOST'],
                 port=os.environ['REDIS_PORT'], db=os.environ['REDIS_DB'])
 
@@ -27,18 +28,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 # Initialize Database
 db = SQLAlchemy(app)
 
-
-# Database User Model
-# class User(db.Model):
-#     __tablename__ = "user"
-#     user_id = db.Column(db.Integer, primary_key=True)
-#     username = db.Column(db.String(255), unique=True,
-#                          nullable=False)
-#     favorites  = db.Column(db.String(255))
-
-#     def json(self):
-#         return {"username": self.username,"favorites": self.favorites}
-
+# here the cinmea db that is not currently used because there is no reason to
 class Cinema(db.Model):
     __tablename__ = "cinema"
     cinema_id = db.Column(db.Integer, primary_key=True)
@@ -49,9 +39,9 @@ class Cinema(db.Model):
     def json(self):
         return {"username": self.username,"favorites": self.favorites}
 
+# here the Movies db that have the required info for the movies
 class Movies(db.Model):
     __tablename__ = "movies"
-    # user_id = db.Column(db.Integer, primary_key=True)
     movie_id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(255),nullable=False)
     startDate = db.Column(db.Date)
@@ -67,6 +57,7 @@ class Movies(db.Model):
 db.create_all()
 db.session.commit()
 
+# adding a movie to the database the cinema name is the cinema owner username
 @app.route("/dbmaster/addmovie", methods=["POST"])
 def addmovie():
     title = request.json['title']
@@ -86,6 +77,7 @@ def addmovie():
 
     return Response("Userdb created with great success" + title, status=200)
 
+# getting the movies and checking if we want to fetch the favorite movies or all
 @app.route("/dbmaster/getmovies", methods=["POST"])
 def getmovies():
     username = request.json['username']
@@ -107,16 +99,17 @@ def getmovies():
             data.append({'movie_id': temp.movie_id,'title': temp.title,'startDate': temp.startDate.strftime("%a %d/%m/%Y"),'endDate': temp.endDate.strftime("%a %d/%m/%Y"),'cinema': temp.cinema, 'category': temp.category})
     return jsonify(movies=data)
 
+# getting the movies with cinema name  same  as the cinema owner username
 @app.route("/dbmaster/getownermovies", methods=["POST"])
 def getownermovies():
     username = request.json['username']
-    # cinemaname=Cinema.query.filter(Cinema.owner == username).first()
     temps = Movies.query.order_by(Movies.endDate.asc()).filter(username == Movies.cinema).all()
     data = []
     for temp in temps:
         data.append({'movie_id': temp.movie_id,'title': temp.title,'startDate': temp.startDate.strftime("%a %d/%m/%Y"),'endDate': temp.endDate.strftime("%a %d/%m/%Y"),'cinema': temp.cinema, 'category': temp.category})
     return jsonify(movies=data)
 
+# searching throught the movies db and deleting  the first movie with the same id
 @app.route("/dbmaster/DeleteMovie", methods=["POST"])
 def DeleteMovie():
     movie_id = request.json['movie_id']
@@ -125,6 +118,7 @@ def DeleteMovie():
     db.session.commit()
     return Response("Userdb deleted with great success", status=200)
 
+# We are editing the already added movies and checking which change was requested .Handling one change at a time
 @app.route("/dbmaster/editMovie", methods=["POST"])
 def editMovie():
     movie_id = request.json['movie_id']
@@ -159,15 +153,7 @@ def editMovie():
         pass
     return Response("moviedb changed with great failure", status=350)
 
-# @app.route("/dbmaster/initFav", methods=["POST"])
-# def initFav():
-#     username  = request.json['username']
-#     init = {
-#         'username': username,
-#         'FavList':[],
-#         }
-#     r.set(username, json.dumps(init))
-#     return Response("movie favorites list init", status=200)
+# adding a movie to a user's favorites 
 
 @app.route("/dbmaster/addtoFav", methods=["POST"])
 def addtoFav():
@@ -189,8 +175,8 @@ def addtoFav():
             }
         r.set(username, json.dumps(updated))
         return Response("movie added to favorites", status=200)
-    # return Response("movie added to favorites fail", status=350)
 
+# removing a movie from a user's favorites 
 @app.route("/dbmaster/removeFav", methods=["POST"])
 def removeFav():
     username = request.json['username']
@@ -206,7 +192,7 @@ def removeFav():
             return Response("movie remove to favorites", status=200)
     return Response("movie remove to favorites fail", status=350)
 
-
+# getting user's favorites movies
 @app.route("/dbmaster/getFav", methods=["POST"])
 def getFav():
     username = request.json['username']
@@ -222,6 +208,7 @@ def getFav():
         return jsonify(movies=movielist)
     return Response("movie get favorites fail", status=350)
 
+# getting movies depending on search parametrs and also if we want only favorites or not
 @app.route("/dbmaster/getspecmovies", methods=["POST"])
 def getspecmovies():
     search = request.json['search']
@@ -254,7 +241,7 @@ def getspecmovies():
             data.append({'movie_id': temp.movie_id,'title': temp.title,'startDate': temp.startDate.strftime("%a %d/%m/%Y"),'endDate': temp.endDate.strftime("%a %d/%m/%Y"),'cinema': temp.cinema, 'category': temp.category})
         return jsonify(movies=data)
 
-
+#search fuction for cinema owners
 @app.route("/dbmaster/getspecmoviesowner", methods=["POST"])
 def getspecmoviesowner():
     search = request.json['search']

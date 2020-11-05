@@ -1,9 +1,7 @@
 import React, { Component } from "react";
 import { Redirect } from "react-router-dom";
 import { Form, Button, Col } from "react-bootstrap";
-
 import axios from "axios";
-
 import { checkCookie, setCookie,checkConfirmed } from "../Authentication/cookies";
 
 const url = process.env.REACT_APP_SERVICE_URL;
