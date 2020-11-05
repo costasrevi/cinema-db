@@ -89,7 +89,7 @@ export function checkowner() {
   let token = getCookie("token");
   console.log("token is: ", token);
   let decoded = jwt.decode(token);
-  if (decoded.user_role === "cinema_owner") {
+  if (decoded.user_role === "cinema_owner" && decoded.confirmed) {
     return decoded.user_role;
   } else {
     return null;
@@ -100,7 +100,7 @@ export function checkadmin() {
   let token = getCookie("token");
   console.log("token is: ", token);
   let decoded = jwt.decode(token);
-  if (decoded.user_role === "admin") {
+  if (decoded.user_role === "admin" && decoded.confirmed) {
     return decoded.user_role;
   } else {
     return null;
