@@ -26,11 +26,9 @@ function User(props) {
           as={ButtonGroup}
           title="Change Role"
           id="bg-nested-dropdown"
-        >
+        > <Dropdown.Item onClick={props.onClickUser}>Make User</Dropdown.Item>
+          <Dropdown.Item onClick={props.onClickcinema_owner}>Make Cinema owner</Dropdown.Item>
           <Dropdown.Item onClick={props.onClickAdmin}>Make Admin</Dropdown.Item>
-          <Dropdown.Item onClick={props.onClickcinema_owner}>
-            Make Cinema owner
-          </Dropdown.Item>
         </DropdownButton>
       </td>
       <td><Button onClick={props.onClickDelete}>Delete user</Button></td>
@@ -97,7 +95,9 @@ class AdminPanel extends Component {
     })
     .then((response) => {
       console.log("User Deleted");
-    });  
+    }, (error) => {
+      console.log("Delete failled.");
+    });
     this.fetchUsersList();
   }
 
@@ -178,6 +178,7 @@ class AdminPanel extends Component {
                     onClickconfirm={() => this.handleClick(user, "confirm")}
                     onClickAdmin={() => this.handleClick(user, "admin")}
                     onClickcinema_owner={() => this.handleClick(user, "cinema_owner")}
+                    onClickUser={() => this.handleClick(user, "user")}
                     onClickDelete={() => this.handleDelete(user)}
                   />
                 ))}

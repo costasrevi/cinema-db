@@ -159,7 +159,7 @@ def check_token():
 def change_role():
     username = request.json['username']
     user_role = request.json['user_role']
-    if user_role != "admin" and user_role != "cinema_owner":
+    if user_role != "admin" and user_role != "cinema_owner" and user_role != "user":
         error = "This user role is not accepted: "+user_role
         return Response(error, status=400)
     user = db.session.query(User).filter_by(username=username).first()
@@ -229,7 +229,7 @@ def getspecusers():
                            'email': temp.email,'surname': temp.surname,'name': temp.name,'confirmed': confirmed, 'user_role': temp.user_role})
     return jsonify(users_list=users_list)
 
-@app.route("/dbmaster/DeleteUser", methods=["POST"])
+@app.route("/auth/DeleteUser", methods=["POST"])
 def DeleteUser():
     username = request.json['username']
     user = User.query.filter(User.username == username).first()
