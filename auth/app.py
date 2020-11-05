@@ -75,7 +75,7 @@ def register():
     surname = request.json['surname']
     user_role = request.json['role']
 
-    if username is None or email is None or password is None:
+    if username is None or email is None or password is None or name is None or surname is None:
         error = 'username, email and password are required'
         return Response(error, status=400)
     if ' ' in username:
@@ -206,17 +206,27 @@ def get_users():
 
 @app.route("/auth/getspecusers", methods=["POST"])
 def getspecusers():
-    search = request.json['search']
-    search = "%{}%".format(search)
-    temps = db.session.query(User).order_by(User.username.asc()).filter(or_(User.username.like(search),User.email.like(search),User.surname.like(search), User.name.like(search),User.user_role.like(search))).all()
+    search = request.json['search']  
+    if "e" == search:
+        search = "%{}%".format(search)
+        temps = User.query.order_by(User.username.asc()).all()
+    elif search in "True":
+        search = "%{}%".format(search)
+        temps = User.query.order_by(User.username.asc()).filter(or_(User.confirmed==True,User.username.like(search),User.email.like(search),User.surname.like(search), User.name.like(search),User.user_role.like(search))).all()
+    elif search in "False":
+        search = "%{}%".format(search)
+        temps = User.query.order_by(User.username.asc()).filter(or_(User.confirmed==False,User.username.like(search),User.email.like(search),User.surname.like(search), User.name.like(search),User.user_role.like(search))).all()
+    else:
+        search = "%{}%".format(search)
+        temps = User.query.order_by(User.username.asc()).filter(or_(User.username.like(search),User.email.like(search),User.surname.like(search), User.name.like(search),User.user_role.like(search))).all()
     users_list = []
     for temp in temps:
-        if user.confirmed == True:
+        if temp.confirmed == True:
             confirmed = "True"
         else:
             confirmed = "False" 
-        users_list.append({'username': user.username,
-                           'email': user.email,'surname': user.surname,'name': user.name,'confirmed': confirmed, 'user_role': user.user_role})
+        users_list.append({'username': temp.username,
+                           'email': temp.email,'surname': temp.surname,'name': temp.name,'confirmed': confirmed, 'user_role': temp.user_role})
     return jsonify(users_list=users_list)
 
 @app.route("/dbmaster/DeleteUser", methods=["POST"])

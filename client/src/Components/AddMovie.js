@@ -39,10 +39,6 @@ class AddMovie extends Component {
 
   handleSubmit = async (event) => {
     event.preventDefault();
-    // console.log("movie success",this.state.startDate.getUTCDate());
-    console.log("movie ",this.state.startDate._d);
-    console.log("movie ",this.state.startDate._d.getDay);
-    // console.log("movie success",this.state.startDate.getDate());
     const moviedata = {
       title: this.state.title,
       startDate: this.state.startDate._d,
@@ -51,15 +47,15 @@ class AddMovie extends Component {
       category: this.state.category,
     };
     console.log("movie success",moviedata);
-    if (moviedata.title !== "" && moviedata.startDate !== null && moviedata.endDate !== null && moviedata.cinemaname !== "" ){}
-    await axios.post(url + "/dbmaster/addmovie", moviedata).then(
-      (response) => {
-        alert("Movie added successfully");
-      },
-      (error) => {
-        alert("addmovie Unsuccesful. Please check your data.");
-      }
-    );
+    if (moviedata.title !== "" && moviedata.startDate !== null && moviedata.endDate !== null && moviedata.cinemaname !== "" ){
+      await axios.post(url + "/dbmaster/addmovie", moviedata).then(
+        (response) => {
+          alert("Movie added successfully");
+        },
+        (error) => {
+          alert("addmovie Unsuccesful. Please check your data.");
+        }
+      );}
   };
   
   render() {

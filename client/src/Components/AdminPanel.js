@@ -148,7 +148,7 @@ class AdminPanel extends Component {
           </Form>
           </Navbar>
           {this.state.users_fetched ? null : this.fetchUsersList()}
-          <Row className="justify-content-md-center">
+          <Row className="admin-panel" >
             <h4>
               Good to have you back {this.state.username}! This is your admin
               panel. You can promote users to cinemaowners or Admins!
