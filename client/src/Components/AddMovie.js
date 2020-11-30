@@ -5,7 +5,7 @@ import axios from "axios";
 import 'react-dates/initialize';
 import { DateRangePicker } from 'react-dates';
 import 'react-dates/lib/css/_datepicker.css';
-import { checkCookie, checkowner } from "../Authentication/cookies";
+import { getCookie } from "../Authentication/cookies";
 
 const url = process.env.REACT_APP_SERVICE_URL;
 
@@ -17,10 +17,10 @@ class AddMovie extends Component {
         title: "",
         startdate: null,
         enddate: null,
-        username:checkCookie(),
+        username:"",
         focusedInput:"",
         category: "",
-      isAuthenticated: checkCookie(),
+        isAuthenticated: true,
     };
     this.handleChange = this.handleChange.bind(this);
   }
@@ -49,9 +49,31 @@ class AddMovie extends Component {
         }
       );}
   };
-  
+
+  componentDidMount() {
+    if (this.state.username===""){
+      let token = getCookie("token");
+      const axios = require('axios');
+      axios.get("http://localhost/idm/user?access_token="+token, token).then(
+        (response) => {
+        console.log("response.data.username",response.data.username);
+        this.setState({ username :response.data.username});
+        this.setState({ user_role :response.data.organizations['0'].name});
+        console.log("this.state.user_role ",this.state.user_role );
+        if (this.state.user_role === "Cinemaowner"){
+          this.setState({ isAuthenticated :true});
+        }
+        },
+        (error) => {
+          console.log("this is create user error:",JSON.stringify(error));
+          this.setState({ isAuthenticated :false});
+        }
+      );
+    }
+  }
+
   render() {
-    if (checkowner()===null){
+    if (!this.state.isAuthenticated){
       alert("access denied");
       return (<Redirect to="/dashboard" />);}
     else{

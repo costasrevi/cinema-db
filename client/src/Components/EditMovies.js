@@ -7,7 +7,7 @@ import {
   Modal,
   Form,Navbar,Nav,FormControl,
 } from "react-bootstrap";
-import { checkCookie, checkUser,checkConfirmed ,checkowner} from "../Authentication/cookies";
+import { getCookie} from "../Authentication/cookies";
 import axios from "axios";
 import { Redirect } from "react-router-dom";
 
@@ -186,10 +186,10 @@ class EditMovies extends Component {
   constructor() {
     super();
     this.state = {
-      username: checkCookie(),
-      user_role: checkUser(),
-      confirmed: checkConfirmed(),
+      username: "",
+      user_role: "",
       movie_list: [],
+      auth:true,
       button1:true,
       button2:true,
       movie_fetched:false,
@@ -223,17 +223,37 @@ class EditMovies extends Component {
   }
 
   componentDidMount(){
-    if (this.state.user_role === "cinema_owner" && this.state.confirmed===true) {
-      this.setState({ button1:false });
-    }
-    if (this.state.user_role === "admin" && this.state.confirmed===true) {
-      this.setState({ button2:false });
+    if (this.state.username===""){
+      let token = getCookie("token");
+      const axios = require('axios');
+      axios.get("http://localhost/idm/user?access_token="+token, token).then(
+        (response) => {
+        console.log("response.data.username",response.data.username);
+        this.setState({ username :response.data.username});
+        this.fetchMovieList()
+        this.setState({ user_role :response.data.organizations['0'].name});
+        if (this.state.user_role !== "Cinemaowner"){
+          this.setState({ auth :false});
+        }
+        if (this.state.user_role === "Cinemaowner" ) {
+          this.setState({ button1:false });
+        }
+        if (this.state.user_role === "Admin" ) {
+          this.setState({ button2:false });
+        }
+        },
+        (error) => {
+          console.log("this is create user error:",JSON.stringify(error));
+          this.setState({ auth :false});
+        }
+      );
+      this.fetchMovieList()
     }
     this.fetchMovieList()
   }
   
   render() {
-    if (checkowner()===null){
+    if (!this.state.auth){
       alert("access denied");
       return (<Redirect to="/dashboard" />);}
     else{
@@ -244,7 +264,7 @@ class EditMovies extends Component {
           <Nav className="mr-auto">
             <Nav.Link href="./dashboard">Home</Nav.Link>
             <Nav.Link disabled={this.state.button1} href="./editmovies">Edit Movies</Nav.Link>
-            <Nav.Link disabled={this.state.button2} href="./admin">Admin Panel</Nav.Link>
+            <Nav.Link disabled={this.state.button2} href="http://localhost:3001/idm">Admin Panel</Nav.Link>
           </Nav>
           <Form inline>
             <FormControl type="text" placeholder="Search" className="mr-sm-2" onChange={this.handleChange} />

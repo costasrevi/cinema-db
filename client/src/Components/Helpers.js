@@ -12,7 +12,7 @@ const PrivateRoute = ({ component: Component, ...rest }) => {
         checkCookie() !== null ? (
           <Component {...props} />
         ) : (
-          <Redirect to="/login" />
+          <Redirect to="localhost:3001" />
         )
       }
     />

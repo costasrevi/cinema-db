@@ -3,7 +3,7 @@ import {
   Container,Button,Row,Table,Dropdown,Navbar,Nav,Form,FormControl,DropdownButton,ButtonGroup,
 } from "react-bootstrap";
 import { Redirect } from "react-router-dom";
-import { checkCookie, checkUser,checkConfirmed,checkadmin } from "../Authentication/cookies";
+import { checkCookie, checkUser,checkadmin } from "../Authentication/cookies";
 import axios from "axios";
 
 const url = process.env.REACT_APP_SERVICE_URL;
@@ -18,8 +18,8 @@ function User(props) {
       <td>{props.users.email}</td>
       <td>{props.users.surname}</td>
       <td>{props.users.name}</td>
-      <td>{props.users.confirmed}</td>
-      <td><Button onClick={props.onClickconfirm}>confirmed</Button></td>
+      {/* <td>{props.users.confirmed}</td> */}
+      {/* <td><Button onClick={props.onClickconfirm}>confirmed</Button></td> */}
       <td>{props.users.user_role}</td>
       <td>
         <DropdownButton
@@ -42,7 +42,7 @@ class AdminPanel extends Component {
     this.state = {
       username: checkCookie(),
       user_role: checkUser(),
-      confirmed: checkConfirmed(),
+      // confirmed: checkConfirmed(),
       users_list: [],
       button1:true,
       button2:true,
@@ -73,10 +73,10 @@ class AdminPanel extends Component {
 
   }
   componentDidMount() {    
-  if (this.state.user_role === "cinema_owner" && this.state.confirmed===true) {
+  if (this.state.user_role === "cinema_owner" ) {
     this.setState({ button1:false });
   }
-  if (this.state.user_role === "admin" && this.state.confirmed===true) {
+  if (this.state.user_role === "admin" ) {
     this.setState({ button2:false });
   }
 }

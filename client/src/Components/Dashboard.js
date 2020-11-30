@@ -1,6 +1,6 @@
 import React, { Component} from "react";
 import { Container,ToggleButton,Navbar,Nav,Form,FormControl, Col, Row, Table } from "react-bootstrap";
-import { checkCookie, checkUser ,checkConfirmed,checkCookieandconfirm} from "../Authentication/cookies";
+import { getCookie } from "../Authentication/cookies";
 import { Redirect } from "react-router-dom";
 import axios from "axios";
 
@@ -11,10 +11,10 @@ function Movies(props) {
   const handleCheck = (check) => {
     if (!check){
       props.movies.favorite=true;
-      console.log("props.movies.movie_id",props.movies.movie_id,check);
+      // console.log("props.movies.movie_id",props.movies.movie_id,check,checkCookie());
       axios.post(url + "/dbmaster/addtoFav",{
         movie_id:props.movies.movie_id,
-        username:checkCookie(),
+        username:this.state.username,
       }).then((response) => {
         console.log("added to fav  success");
       },(error) => {console.log("added to fav fail");});
@@ -24,7 +24,7 @@ function Movies(props) {
       console.log("props.movies.movie_id",props.movies.movie_id);
       axios.post(url + "/dbmaster/removeFav",{
         movie_id:props.movies.movie_id,
-        username:checkCookie(),
+        username:this.state.username,
       }).then((response) => {
         console.log("remove to fav  success");
       },(error) => {console.log("remove to fav  fail");});
@@ -56,9 +56,9 @@ class DashboardPage extends Component {
   constructor() {
     super();
     this.state = {
-      username: checkCookie(),
-      user_role: checkUser(),
-      confirmed: checkConfirmed(),
+      username: "",
+      auth: true,
+      user_role: "",
       startDate:"",
       endDate:"",
       movie_list: [],
@@ -110,32 +110,49 @@ class DashboardPage extends Component {
   }
 
   componentDidMount() {
+    if (this.state.username===""){
+      let token = getCookie("token");
+      const axios = require('axios');
+      axios.get("http://localhost/idm/user?access_token="+token, token).then(
+        (response) => {
+        console.log("response.data.username",response.data.username);
+        this.setState({ username :response.data.username});
+        this.setState({ user_role :response.data.organizations['0'].name});
+        console.log("this.state.user_role ",this.state.user_role );
+        if (this.state.user_role === "Cinemaowner" ) {
+          this.setState({ button1:false });
+        }
+        if (this.state.user_role === "Admin" ) {
+          this.setState({ button2:false });
+        }
+        },
+        (error) => {
+          console.log("this is create user error:",JSON.stringify(error));
+          this.setState({ auth :false});
+        }
+      );
+    }
     if (!this.state.moviesfetch){
-      axios.post(url + "/dbmaster/getmovies",{username:checkCookie()}).then((response) => {
+      axios.post(url + "/dbmaster/getmovies",{username:this.state.username}).then((response) => {
         const movie_list = response.data.movies;
         console.log("movie_list fetched");
         this.setState({ movie_list ,moviesfetch:true});
       });
     }
-    if (this.state.user_role === "cinema_owner" && this.state.confirmed===true) {
-      this.setState({ button1:false });
-    }
-    if (this.state.user_role === "admin" && this.state.confirmed===true) {
-      this.setState({ button2:false });
-    }
   }
 
   handleChecked(){
-    if (this.state.checked2===true){
+    if (this.state.checked2===true && this.state.username){
+      console.log("this.state.username",this.state.username)
       this.setState({ checked2:false });
-      axios.post(url + "/dbmaster/getmovies",{username:checkCookie()}).then((response) => {
+      axios.post(url + "/dbmaster/getmovies",{username:this.state.username}).then((response) => {
         const movie_list = response.data.movies;
         console.log("movie_list fetched");
         this.setState({ movie_list });
       });
     }else {
       this.setState({ checked2:true});
-      axios.post(url + "/dbmaster/getFav",{username:checkCookie()}).then((response) => {
+      axios.post(url + "/dbmaster/getFav",{username:this.state.username}).then((response) => {
         const movie_list = response.data.movies;
         console.log("movie_list fetched");
         this.setState({ movie_list});
@@ -146,9 +163,9 @@ class DashboardPage extends Component {
   }
 
   render() {
-    if (checkCookieandconfirm()===null){
+    if (!this.state.auth){
       alert("access denied");
-      return(<Redirect to="/welcome" />)}
+      return(<Redirect to="/login"/>)}
     else{
       return (
             <Container >      
@@ -157,7 +174,7 @@ class DashboardPage extends Component {
               <Nav className="mr-auto">
                 <Nav.Link href="./dashboard">Home</Nav.Link>
                 <Nav.Link disabled={this.state.button1} href="./editmovies">Edit Movies</Nav.Link>
-                <Nav.Link disabled={this.state.button2} href="./admin">Admin Panel</Nav.Link>
+                <Nav.Link disabled={this.state.button2} href="http://localhost:3001/idm">Admin Panel</Nav.Link>
               </Nav>
               <Form inline>
                 <input type="date" value={this.state.endDate} onChange={this.handleChange2}></input>

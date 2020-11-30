@@ -1,28 +1,94 @@
-version: "3.4"
+version: "3.5"
 
 services:
-  auth:
-    build: ./auth
-    image: auth:latest
-    env_file: ./auth/postgres.env
+
+  keyrock:
+    hostname: keyrock
+    build: ./keyrock
+    image: keyrock:latest
+    # env_file: ./auth/postgres.env
     depends_on:
-      - auth-db
+      - mysql-db
     ports:
-      - "5000"
+      - '3001:3001'
+      - '443:443'
+    networks:
+      default1:
+        ipv4_address: 172.19.1.23
     restart: always
-  auth-db:
-    image: postgres:latest
-    env_file: ./auth/postgres.env
+  mysql-db:
     restart: always
+    image: mysql:5.7.32
+    hostname: mysql-db
+    container_name: db-mysql
+    expose:
+      - "3306"
+    ports:
+      - "3306:3306"
+    networks:
+      default1:
+        ipv4_address: 172.19.1.22
+    environment:
+      # Development use only 
+      # Use Docker Secrets for Sensitive Data
+      - "MYSQL_ROOT_PASSWORD=secret"
+      - "MYSQL_ROOT_HOST=172.19.1.23"
+    volumes:
+      - mysql-db:/var/lib/mysql
+
+  # mailer:
+  #   restart: always
+  #   image: mazdermind/docker-mail-relay
+  #   hostname: mailer
+  #   container_name: mailer
+  #   ports:
+  #     - "25:25"
+  #   environment:
+  #     - SMTP_LOGIN=<login> # Login to connect to the external relay
+  #     - SMTP_PASSWORD=<password> # Password to connect to the external relay
+  #     - EXT_RELAY_HOST=<hostname> # External relay DNS name
+  #     - EXT_RELAY_PORT=25
+  #     - ACCEPTED_NETWORKS=172.19.1.0/24
+  #     - USE_TLS=no
+
+  # auth:
+  #   build: ./auth
+  #   image: auth:latest
+  #   env_file: ./auth/postgres.env
+  #   depends_on:
+  #     - auth-db
+  #   ports:
+  #     - "5000"
+  #   restart: always
+
+  # auth-db:
+  #   image: postgres:latest
+  #   env_file: ./auth/postgres.env
+  #   restart: always
+  mongo:
+    image: mongo:3.6
+    command: --nojournal
+    networks:
+      - default1
+  orion:
+    image: fiware/orion
+    networks:
+      - default1
+    ports:
+      - "1026:1026"
+    command: -dbhost mongo
   nginx:
     build: ./nginx
     image: nginx:latest
     ports:
       - 80:80
     depends_on:
-      - auth
+      # - auth
       - client
+      - keyrock
     restart: always
+    networks:
+      - default1
   client:
     build: ./client
     image: client:latest
@@ -32,8 +98,10 @@ services:
       - NODE_ENV=development
       - REACT_APP_SERVICE_URL=http://localhost:80
       - CHOKIDAR_USEPOLLING=true
-    depends_on:
-      - auth
+    # depends_on:
+    #   - auth
+    networks:
+      - default1
     restart: always
   dbmaster:
     build: ./dbmaster
@@ -44,12 +112,36 @@ services:
       - dbmaster2-db
     ports:
       - "5002"
+    networks:
+      - default1
+    restart: always
+  pepproxy:
+    build: ./pepproxy
+    image: pepproxy:latest
+    ports:
+      - "1027"
+    networks:
+      - default1
     restart: always
   dbmaster2-db:
     image: redis:latest
     env_file: ./dbmaster/db.env
     restart: always
+    networks:
+      - default1
   dbmaster-db:
     image: postgres:latest
     env_file: ./dbmaster/db.env
     restart: always
+    networks:
+      - default1
+
+
+networks:
+  default1:
+    ipam:
+      config:
+        - subnet: 172.19.1.0/24
+
+volumes:
+  mysql-db: ~
