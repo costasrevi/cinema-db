@@ -186,10 +186,9 @@ class EditMovies extends Component {
   constructor() {
     super();
     this.state = {
-      username: "",
-      user_role: "",
+      username: getCookie("username"),
+      user_role: getCookie("role"),
       movie_list: [],
-      auth:true,
       button1:true,
       button2:true,
       movie_fetched:false,
@@ -223,37 +222,19 @@ class EditMovies extends Component {
   }
 
   componentDidMount(){
-    if (this.state.username===""){
-      let token = getCookie("token");
-      const axios = require('axios');
-      axios.get("http://localhost/idm/user?access_token="+token, token).then(
-        (response) => {
-        console.log("response.data.username",response.data.username);
-        this.setState({ username :response.data.username});
-        this.fetchMovieList()
-        this.setState({ user_role :response.data.organizations['0'].name});
-        if (this.state.user_role !== "Cinemaowner"){
-          this.setState({ auth :false});
-        }
-        if (this.state.user_role === "Cinemaowner" ) {
-          this.setState({ button1:false });
-        }
-        if (this.state.user_role === "Admin" ) {
-          this.setState({ button2:false });
-        }
-        },
-        (error) => {
-          console.log("this is create user error:",JSON.stringify(error));
-          this.setState({ auth :false});
-        }
-      );
-      this.fetchMovieList()
+    if (this.state.user_role === "Cinemaowner" ) {
+      this.setState({ button1:false });
+    }
+    if (this.state.user_role === "Admin" ) {
+      this.setState({ button2:false });
     }
     this.fetchMovieList()
   }
   
   render() {
-    if (!this.state.auth){
+    console.log("getCookie(role)",getCookie("role"));
+    //var role= getCookie("role");
+    if (getCookie("role")!=="Cinemaowner"){
       alert("access denied");
       return (<Redirect to="/dashboard" />);}
     else{
@@ -264,7 +245,7 @@ class EditMovies extends Component {
           <Nav className="mr-auto">
             <Nav.Link href="./dashboard">Home</Nav.Link>
             <Nav.Link disabled={this.state.button1} href="./editmovies">Edit Movies</Nav.Link>
-            <Nav.Link disabled={this.state.button2} href="http://localhost:3001/idm">Admin Panel</Nav.Link>
+            <Nav.Link disabled={this.state.button2} href="./admin">Admin Panel</Nav.Link>
           </Nav>
           <Form inline>
             <FormControl type="text" placeholder="Search" className="mr-sm-2" onChange={this.handleChange} />

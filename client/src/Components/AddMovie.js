@@ -17,7 +17,7 @@ class AddMovie extends Component {
         title: "",
         startdate: null,
         enddate: null,
-        username:"",
+        username:getCookie("username"),
         focusedInput:"",
         category: "",
         isAuthenticated: true,
@@ -50,30 +50,30 @@ class AddMovie extends Component {
       );}
   };
 
-  componentDidMount() {
-    if (this.state.username===""){
-      let token = getCookie("token");
-      const axios = require('axios');
-      axios.get("http://localhost/idm/user?access_token="+token, token).then(
-        (response) => {
-        console.log("response.data.username",response.data.username);
-        this.setState({ username :response.data.username});
-        this.setState({ user_role :response.data.organizations['0'].name});
-        console.log("this.state.user_role ",this.state.user_role );
-        if (this.state.user_role === "Cinemaowner"){
-          this.setState({ isAuthenticated :true});
-        }
-        },
-        (error) => {
-          console.log("this is create user error:",JSON.stringify(error));
-          this.setState({ isAuthenticated :false});
-        }
-      );
-    }
-  }
+  // componentDidMount() {
+  //   if (this.state.username===""){
+  //     let token = getCookie("token");
+  //     const axios = require('axios');
+  //     axios.get("http://localhost/idm/user?access_token="+token, token).then(
+  //       (response) => {
+  //       console.log("response.data.username",response.data.username);
+  //       this.setState({ username :response.data.username});
+  //       this.setState({ user_role :response.data.organizations['0'].name});
+  //       console.log("this.state.user_role ",this.state.user_role );
+  //       if (this.state.user_role === "Cinemaowner"){
+  //         this.setState({ isAuthenticated :true});
+  //       }
+  //       },
+  //       (error) => {
+  //         console.log("this is create user error:",JSON.stringify(error));
+  //         this.setState({ isAuthenticated :false});
+  //       }
+  //     );
+  //   }
+  // }
 
   render() {
-    if (!this.state.isAuthenticated){
+    if (getCookie("role")!=="Cinemaowner"){
       alert("access denied");
       return (<Redirect to="/dashboard" />);}
     else{

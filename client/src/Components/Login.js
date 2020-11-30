@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { Redirect } from "react-router-dom";
 import { Form, Button, Col } from "react-bootstrap";
 // import axios from "axios";
-import { setCookie,getCookie } from "../Authentication/cookies";
+import { setCookie, getCookie , checkCookie } from "../Authentication/cookies";
 
 // const url = process.env.REACT_APP_SERVICE_URL;
 
@@ -10,9 +10,10 @@ class Login extends Component {
   constructor() {
     super();
     this.state = {
-      username: "",
+      password: "",
       email: "",
-      isAuthenticated: false,
+      trash:"",
+      // isAuthenticated: false,
       // confirmed:checkConfirmed(),
     };
     // this.setState = this.setState.bind(this);
@@ -44,41 +45,73 @@ class Login extends Component {
       },
       data : data
     };
-    var self = this;
+    // var self = this;
     axios(config)
     .then(function (response) {
       console.log(JSON.stringify(response.data));
       setCookie("token",response.data.access_token);
-      self.setState({ isAuthenticated:true});
+      // self.setState({ isAuthenticated:true});
       // this.setState({ isAuthenticated:response.data.access_token});
     })
     .catch(function (error) {
       console.log(error);
-      self.setState({ isAuthenticated:false});
+      // self.setState({ isAuthenticated:false});
     });
-  };
-
-  componentDidMount() {
-    if (this.state.username===""){
+    if (getCookie("token")!==""){
+      // this.setState({trash:"tesad"});
       let token = getCookie("token");
+      console.log("this is my fcking token");
       const axios = require('axios');
       axios.get("http://localhost/idm/user?access_token="+token, token).then(
         (response) => {
         console.log("response.data.username",response.data.username);
-        this.setState({ username :response.data.username});
-        this.setState({ user_role :response.data.organizations['0'].name});
+        // this.setState({ username :response.data.username});
+        setCookie("username",response.data.username);
+        // this.setState({ user_role :response.data.organizations['0'].name});
+        setCookie("role",response.data.organizations['0'].name);
         console.log("this.state.user_role ",this.state.user_role );
-        this.setState({ isAuthenticated :true});
+        this.setState({trash:"tesad"});
+        // this.setState({ isAuthenticated :true});
         },
         (error) => {
           console.log("this is create user error:",JSON.stringify(error));
-          this.setState({ isAuthenticated :false});
+          // this.setState({ isAuthenticated :false});
+          this.setState({trash:"tesad"});
         }
       );
     }
+    setTimeout(() => {this.setState({trash:true});}, 50);
+  };
+
+  componentDidMount() {
+    this.setState({trash:"tesad"});
   }
+
+  // componentDidMount() {
+  //   if (this.state.username===""){
+  //     let token = getCookie("token");
+  //     const axios = require('axios');
+  //     axios.get("http://localhost/idm/user?access_token="+token, token).then(
+  //       (response) => {
+  //       console.log("response.data.username",response.data.username);
+  //       // this.setState({ username :response.data.username});
+  //       setCookie("username",response.data.username);
+  //       // this.setState({ user_role :response.data.organizations['0'].name});
+  //       setCookie("role",response.data.organizations['0'].name);
+  //       console.log("this.state.user_role ",this.state.user_role );
+  //       // this.setState({ isAuthenticated :true});
+  //       },
+  //       (error) => {
+  //         console.log("this is create user error:",JSON.stringify(error));
+  //         // this.setState({ isAuthenticated :false});
+  //       }
+  //     );
+  //   }
+  // }
   render() {
-    if (this.state.isAuthenticated===true) {
+    console.log("getCookie(token)wtfwtf", getCookie("role")," lebnght ",getCookie("role").length);
+    if (getCookie("role").length>=5) {
+      console.log("getCookie(token)reaaaalllyyy?", getCookie("role")," lebnght ",getCookie("tokroleen").length);
       return <Redirect to="/dashboard" />;
     }
     // if (!this.state.confirmed && this.state.isAuthenticated) {

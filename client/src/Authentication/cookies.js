@@ -19,122 +19,122 @@ export function getCookie(cname) {
   return "";
 }
 
-export function checkCookie() {
-  let token = getCookie("token");
-  var axios = require('axios');
-  var config = {
-    method: 'get',
-    async: false,
-    url: 'http://localhost/idm/user?access_token='+token,
-    headers: { 
-    }
-  };
-  axios(config)
-  .then(function (response) {
-    console.log(response.data);
-    return response.data.username;
-  })
-  .catch(function (error) {
-    console.log(error);
-    return null;
-  });
-}
-
-// export function checkCookieandconfirm() {
+// export function checkCookie() {
 //   let token = getCookie("token");
-//   console.log("token is: ", token);
-//   let decoded = jwt.decode(token);
-//   if (decoded !== null && decoded.confirmed) {
-//     return decoded.username;
-//   } else {
+//   var axios = require('axios');
+//   var config = {
+//     method: 'get',
+//     async: false,
+//     url: 'http://localhost/idm/user?access_token='+token,
+//     headers: { 
+//     }
+//   };
+//   axios(config)
+//   .then(function (response) {
+//     console.log(response.data);
+//     return response.data.username;
+//   })
+//   .catch(function (error) {
+//     console.log(error);
 //     return null;
-//   }
+//   });
 // }
 
+// // export function checkCookieandconfirm() {
+// //   let token = getCookie("token");
+// //   console.log("token is: ", token);
+// //   let decoded = jwt.decode(token);
+// //   if (decoded !== null && decoded.confirmed) {
+// //     return decoded.username;
+// //   } else {
+// //     return null;
+// //   }
+// // }
 
-export function checkowner() {
-  let token = getCookie("token");
-  var axios = require('axios');
-  var config = {
-    method: 'get',
-    async: false,
-    url: 'http://localhost/idm/user?access_token='+token,
-    headers: { 
-    }
-  };
-  console.log("response.data");
-  axios(config)
-  .then(function (response) {
-    console.log(response.data);
-    if (response.data.organizations['0'].name === "Cinemaowner") {
-      return response.data.organizations['0'].name;}
-    else{
-      return null;
-    }
-  })
-  .catch(function (error) {
-    console.log(error);
-    return null;
-  });
-}
 
-export function checkadmin() {
-  let token = getCookie("token");
-  var axios = require('axios');
-  var config = {
-    method: 'get',
-    async: false,
-    url: 'http://localhost/idm/user?access_token='+token,
-    headers: { 
-    }
-  };
-  axios(config)
-  .then(function (response) {
-    console.log(JSON.stringify(response.data));
-    if (response.data.organizations['0'].name === "Admin") {
-      return response.data.organizations['0'].name;}
-    else{
-      return null;
-    }
-  })
-  .catch(function (error) {
-    console.log(error);
-    return null;
-  });
-}
-
-export function checkUser() {
-  let token = getCookie("token");
-  var axios = require('axios');
-  var config = {
-    method: 'get',
-    url: 'http://localhost/idm/user?access_token='+token,
-    headers: { 
-    }
-  };
-  axios(config)
-  .then(function (response) {
-    console.log(JSON.stringify(response.data));
-    if (response.data.organizations['0'].name !== null) {
-      return response.data.organizations['0'].name;}
-    else{
-      return null;
-    }
-  })
-  .catch(function (error) {
-    console.log(error);
-    return null;
-  });
-}
-
-// export function checkConfirmed() {
+// export function checkowner() {
 //   let token = getCookie("token");
-//   console.log("token is: ", token);
-//   let decoded = jwt.decode(token);
-//   if (decoded !== null) {
-//     return decoded.confirmed;
-//   } else {
+//   var axios = require('axios');
+//   var config = {
+//     method: 'get',
+//     async: false,
+//     url: 'http://localhost/idm/user?access_token='+token,
+//     headers: { 
+//     }
+//   };
+//   console.log("response.data");
+//   axios(config)
+//   .then(function (response) {
+//     console.log(response.data);
+//     if (response.data.organizations['0'].name === "Cinemaowner") {
+//       return response.data.organizations['0'].name;}
+//     else{
+//       return null;
+//     }
+//   })
+//   .catch(function (error) {
+//     console.log(error);
 //     return null;
-//   }
-//
+//   });
 // }
+
+// export function checkadmin() {
+//   let token = getCookie("token");
+//   var axios = require('axios');
+//   var config = {
+//     method: 'get',
+//     async: false,
+//     url: 'http://localhost/idm/user?access_token='+token,
+//     headers: { 
+//     }
+//   };
+//   axios(config)
+//   .then(function (response) {
+//     console.log(JSON.stringify(response.data));
+//     if (response.data.organizations['0'].name === "Admin") {
+//       return response.data.organizations['0'].name;}
+//     else{
+//       return null;
+//     }
+//   })
+//   .catch(function (error) {
+//     console.log(error);
+//     return null;
+//   });
+// }
+
+// export function checkUser() {
+//   let token = getCookie("token");
+//   var axios = require('axios');
+//   var config = {
+//     method: 'get',
+//     url: 'http://localhost/idm/user?access_token='+token,
+//     headers: { 
+//     }
+//   };
+//   axios(config)
+//   .then(function (response) {
+//     console.log(JSON.stringify(response.data));
+//     if (response.data.organizations['0'].name !== null) {
+//       return response.data.organizations['0'].name;}
+//     else{
+//       return null;
+//     }
+//   })
+//   .catch(function (error) {
+//     console.log(error);
+//     return null;
+//   });
+// }
+
+// // export function checkConfirmed() {
+// //   let token = getCookie("token");
+// //   console.log("token is: ", token);
+// //   let decoded = jwt.decode(token);
+// //   if (decoded !== null) {
+// //     return decoded.confirmed;
+// //   } else {
+// //     return null;
+// //   }
+// //
+// // }

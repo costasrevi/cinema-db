@@ -9,7 +9,7 @@ import { Logout } from "./Logout";
 import Dashboard from "./Dashboard";
 import AddMovie from "./AddMovie";
 // import Welcome from "./Welcome";
-import AdminPanel from "./AdminPanel";
+// import AdminPanel from "./AdminPanel";
 import EditMovies from "./EditMovies";
 
 const Routes = () => (
@@ -22,7 +22,7 @@ const Routes = () => (
     {/* <PrivateRoute path="/Welcome" component={Welcome} /> */}
     <PrivateRoute path="/AddMovie" component={AddMovie} />
     <PrivateRoute path="/EditMovies" component={EditMovies} />
-    <PrivateRoute path="/admin" component={AdminPanel} />
+    {/* <PrivateRoute path="/admin" component={AdminPanel} /> */}
   </Switch>
 );
 

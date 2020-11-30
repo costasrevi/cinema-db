@@ -18,6 +18,7 @@ class Register extends Component {
       email: "",
       id: "",
       role:"User",
+      trash:false,
       checkCookie: false,
       checkerror: false,
       xtoken: "",
@@ -85,7 +86,7 @@ class Register extends Component {
         await axios.post("http://localhost/idm/v1/organizations/"+this.state.role+"/users/"+this.state.id+"/organization_roles/member", data2,config2).then(
           (response) => {
           console.log(JSON.stringify(response.data));
-          alert("Go to login");
+          this.setState({trash:true});
           // window.location.replace('http://localhost");
           },
           (error) => {
@@ -130,30 +131,34 @@ class Register extends Component {
     }
   };
 //used to check if there is a token and if that token is valid
-  componentDidMount() {
-    if (this.state.username===""){
-      let token = getCookie("token");
-      const axios = require('axios');
-      axios.get("http://localhost/idm/user?access_token="+token, token).then(
-        (response) => {
-        console.log("response.data.username",response.data.username);
-        this.setState({ username :response.data.username});
-        this.setState({ role :response.data.organizations['0'].name});
-        this.setState({ checkCookie :true});
-        console.log("this is create user error: checkCookie :true}");
-        },
-        (error) => {
-          console.log("this is create user error:",JSON.stringify(error));
-          this.setState({ checkCookie :false});
-        }
-      );
-    }
-  }
+  // componentDidMount() {
+  //   if (this.state.username===""){
+  //     let token = getCookie("token");
+  //     const axios = require('axios');
+  //     axios.get("http://localhost/idm/user?access_token="+token, token).then(
+  //       (response) => {
+  //       console.log("response.data.username",response.data.username);
+  //       this.setState({ username :response.data.username});
+  //       this.setState({ role :response.data.organizations['0'].name});
+  //       this.setState({ checkCookie :true});
+  //       console.log("this is create user error: checkCookie :true}");
+  //       },
+  //       (error) => {
+  //         console.log("this is create user error:",JSON.stringify(error));
+  //         this.setState({ checkCookie :false});
+  //       }
+  //     );
+  //   }
+  // }
 
 
   render() {
-    if (this.state.checkCookie) {
+    if (getCookie("role").length>=5) {
       return <Redirect to="/dashboard" />;
+    }
+    if (this.state.trash===true){
+      alert("Now login to continue");
+      return <Redirect to="/login" />;
     }
     return (
       <Form className="my-form" onSubmit={this.handleSubmit}>

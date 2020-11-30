@@ -70,13 +70,24 @@ services:
     command: --nojournal
     networks:
       - default1
+    env_file: ./dbmaster/db.env
+    # ports:
+    #   - "27017:27017"
+    # environment:
+    #   - MONGO_INITDB_ROOT_USERNAME=root
+    #   - MONGO_INITDB_ROOT_PASSWORD=1234  
+  mongorion:
+    image: mongo:3.6
+    command: --nojournal
+    networks:
+      - default1    
   orion:
     image: fiware/orion
     networks:
       - default1
     ports:
       - "1026:1026"
-    command: -dbhost mongo
+    command: -dbhost mongorion
   nginx:
     build: ./nginx
     image: nginx:latest
@@ -108,7 +119,7 @@ services:
     image: dbmaster:latest
     env_file: ./dbmaster/db.env
     depends_on:
-      - dbmaster-db
+      - mongo
       - dbmaster2-db
     ports:
       - "5002"
@@ -129,12 +140,12 @@ services:
     restart: always
     networks:
       - default1
-  dbmaster-db:
-    image: postgres:latest
-    env_file: ./dbmaster/db.env
-    restart: always
-    networks:
-      - default1
+  # dbmaster-db:
+  #   image: postgres:latest
+  #   env_file: ./dbmaster/db.env
+  #   restart: always
+  #   networks:
+  #     - default1
 
 
 networks:
