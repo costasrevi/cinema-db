@@ -8,12 +8,16 @@ import json as jn
 import requests
 # import redis
 # import pymongo MongoClient
+# from gevent import monkey
 from flask_mongoengine import *
 from mongoengine.queryset.visitor import Q
+# from flask_socketio import SocketIO, emit
 # from sqlalchemy import or_
+# monkey.patch_all()
 
 # Initialize Application
-app = Flask(__name__)
+# app = Flask(__name__)
+# socketio = SocketIO(app)
 db = MongoEngine()
 
 # myclient = pymongo.MongoClient("mongodb://"+os.environ['MONGO_HOST']+":"+os.environ['MONGO_PORT']+"/")
@@ -55,7 +59,6 @@ def addmovie():
     category = request.json['category']
     tempo=Movies(title=title,startDate=startDate2,endDate=endDate2,cinema=cinema,category=category).save()
     url = "http://orion:1026/v2/entities"
-    # payload="{\r\n  \"id\": \" dw45gdt\",\r\n  \"type\": \"movie\",\r\n  \"title\": {\r\n    \"value\": \"scary movie @\",\r\n    \"type\": \"String\"\r\n  },\r\n  \"Startdate\": {\r\n    \"value\": \"Startdate\",\r\n    \"type\": \"Date\"\r\n  },\r\n    \"Endate\": {\r\n    \"value\": \"Startdate\",\r\n    \"type\": \"Date\"\r\n  },\r\n    \"Category\": {\r\n    \"value\": \"Scary\",\r\n    \"type\": \"String\"\r\n  }\r\n}"
     payload={
         "id": str(tempo.id),
         "type": "movie",
@@ -103,7 +106,7 @@ def getmovies():
 def getFav():
     username = request.json['username']
     data = []
-    for movies in Movies.objects.order_by('endDate'):
+    for movies in Movies.objects(endDate__gte=dt.now()).order_by('endDate'):
         # temp=movies.id
         fav=Favorites.objects(username=username)
         if fav:
@@ -131,7 +134,9 @@ def getownermovies():
 def DeleteMovie():
     movie_id = request.json['movie_id']
     Movies.objects(id=movie_id).delete()
-    return Response("Userdb deleted with great success", status=200)
+    url="http://orion:1026/v2/entities/"+movie_id
+    response = requests.request("DELETE", url,headers = {},data = {})
+    return Response("Userdb deleted with great success"+str(response), status=200)
 
 # We are editing the already added movies and checking which change was requested .Handling one change at a time
 @app.route("/dbmaster/editMovie", methods=["POST"])
@@ -294,3 +299,4 @@ def getspecmoviesowner():
 
 if __name__ == "__main__":
     app.run(debug=False)
+    # socketio.run(app, host="0.0.0.0", port=5001)

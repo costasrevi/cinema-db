@@ -85,6 +85,8 @@ services:
     image: fiware/orion
     networks:
       - default1
+    depends_on:
+      - mongorion
     ports:
       - "1026:1026"
     command: -dbhost mongorion

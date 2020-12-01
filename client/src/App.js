@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import "./App.css";
 import { BrowserRouter as Router } from "react-router-dom";
+import io from "socket.io-client";
 
 import Routes from "./Components/Routes";
 
