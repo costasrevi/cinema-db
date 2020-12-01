@@ -16,7 +16,7 @@ from mongoengine.queryset.visitor import Q
 # monkey.patch_all()
 
 # Initialize Application
-# app = Flask(__name__)
+app = Flask(__name__)
 # socketio = SocketIO(app)
 db = MongoEngine()
 
