@@ -8,16 +8,16 @@ import json as jn
 import requests
 # import redis
 # import pymongo MongoClient
-# from gevent import monkey
+from gevent import monkey
 from flask_mongoengine import *
 from mongoengine.queryset.visitor import Q
-# from flask_socketio import SocketIO, emit
+from flask_socketio import SocketIO, emit , join_room, leave_room
 # from sqlalchemy import or_
-# monkey.patch_all()
+monkey.patch_all()
 
 # Initialize Application
 app = Flask(__name__)
-# socketio = SocketIO(app)
+socketio = SocketIO(app)
 db = MongoEngine()
 
 # myclient = pymongo.MongoClient("mongodb://"+os.environ['MONGO_HOST']+":"+os.environ['MONGO_PORT']+"/")
@@ -35,9 +35,9 @@ db.init_app(app)
 # here the Movies db that have the required info for the movies
 class Movies(db.Document):
 
-    title = db.StringField(unique=True)
-    startDate = db.DateTimeField()
-    endDate = db.DateTimeField()
+    title = db.StringField(required=True)
+    startDate = db.DateTimeField(required=True)
+    endDate = db.DateTimeField(required=True)
     cinema = db.StringField(required=True)
     category = db.StringField(required=True)
 
@@ -66,15 +66,15 @@ def addmovie():
             "value": title,
             "type": "String"
             },
-        "Startdate": {
+        "startDate": {
             "value": str(startDate2),
             "type": "String"
             },
-        "Endate": {
+        "endDate": {
             "value": str(endDate2),
             "type": "String"
             },
-        "Category": {
+        "category": {
             "value": category,
             "type": "String"
             }
@@ -210,6 +210,41 @@ def editMovie():
 def addtoFav():
     username = request.json['username']
     movie_id = request.json['movie_id']
+    url="http://orion:1026/v2/subscriptions/"
+    headers = {'Content-Type': 'application/json'}
+    data={
+        "description": str(movie_id+":"+username),
+        "subject": {
+            "entities": [
+            {
+                "id": movie_id,
+                "type": "movie"
+            }
+            ],
+            "condition": {
+            "attrs": [
+                "category",
+                "endDate",
+                "startDate",
+                "title"
+            ]
+            }
+        },
+        "notification": {
+            "http": {
+                "url": "http://dbmaster:5002/dbmaster/emiter"
+            },
+            "attrs": [
+                "category",
+                "endDate",
+                "startDate",
+                "title"
+            ]
+        },
+        "expires": "2030-01-01T14:00:00.00Z",
+        "throttling": 1
+        }
+    requests.request("POST", url, headers=headers, data=jn.dumps(data))
     fav=Favorites.objects(username=username)
     if fav:
         fav = fav.get(pk=username)
@@ -232,7 +267,17 @@ def removeFav():
         if movie_id in fav['Fav_List']:
             fav.model = fav['Fav_List'].remove(movie_id)
             fav.save()
-        return Response("movie delete to favorites", status=200)
+        url="http://orion:1026/v2/subscriptions"
+        subs=requests.request("GET", url, headers={}, data={})
+        temp=subs.json()
+        # trash=type(temp)
+        for counter in temp:
+            if  (movie_id+":"+username)==counter["description"]:
+                # headers = {'Content-Type': 'application/json'}
+                url="http://orion:1026/v2/subscriptions/"+counter["id"]
+                asd=requests.request("DELETE", url, headers={}, data={})
+                return Response("movie delete to favorites"+str(asd), status=200)
+        return Response("movie kinda delete to favorites"+str(asd), status=200)
     return Response("movie delete to favorites failed", status=500)
 
 # # getting movies depending on search parametrs and also if we want only favorites or not
@@ -296,7 +341,49 @@ def getspecmoviesowner():
         data.append({'movie_id': str(temp.id),'title': temp.title,'startDate': temp.startDate.strftime("%a %d/%m/%Y"),'endDate': temp.endDate.strftime("%a %d/%m/%Y"),'cinema': temp.cinema, 'category': temp.category})
     return jsonify(movies=data)
 
+@app.route("/dbmaster/emiter", methods=["POST"])
+def emiter():
+    data = request.json['data']
+    subscriptionId = request.json['subscriptionId']
+    # username = request.json['username']
+    data2 = data[0]
+    url="http://orion:1026/v2/subscriptions"
+    subs=requests.request("GET", url, headers={}, data={})
+    temp=subs.json()
+    # trash=type(temp)s
+    for counter in temp:
+        if subscriptionId == counter["id"]:
+            # data2=counter["description"].split(":")
+            # data2.append(counter["description"].split(":"))
+            data2["username"]=counter["description"].split(":")
+    socketio.emit('message', data2)
+    return Response("movrtie emiter"+str(data), status=200)
+
+@socketio.on('connect')
+def socket_handler():
+    emit("trash")
+    # return
+
+
+# @socketio.on('message')
+# def socket_message(data):
+#     emit('message', data)
+#    emit('connection')
+
+# @socketio.on('join')
+# def socket_create_room(room):
+#     join_room(room)
+
+# @app.route('/callback/<address>')
+# def callback(address):
+#     sid = get_sid_from_address(address)
+#     socketio.send('payment seen on blockchain', room=sid)
+
+# @socketio.on('address')
+# def socketlisten(address):
+#     associate_address_with_sid(address, request.sid)
 
 if __name__ == "__main__":
-    app.run(debug=False)
-    # socketio.run(app, host="0.0.0.0", port=5001)
+    # app.run(debug=False)
+    # socketio.run(app)
+    socketio.run(app, host="0.0.0.0", port=5002)

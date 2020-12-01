@@ -35,42 +35,14 @@ services:
       - "MYSQL_ROOT_HOST=172.19.1.23"
     volumes:
       - mysql-db:/var/lib/mysql
-
-  # mailer:
-  #   restart: always
-  #   image: mazdermind/docker-mail-relay
-  #   hostname: mailer
-  #   container_name: mailer
-  #   ports:
-  #     - "25:25"
-  #   environment:
-  #     - SMTP_LOGIN=<login> # Login to connect to the external relay
-  #     - SMTP_PASSWORD=<password> # Password to connect to the external relay
-  #     - EXT_RELAY_HOST=<hostname> # External relay DNS name
-  #     - EXT_RELAY_PORT=25
-  #     - ACCEPTED_NETWORKS=172.19.1.0/24
-  #     - USE_TLS=no
-
-  # auth:
-  #   build: ./auth
-  #   image: auth:latest
-  #   env_file: ./auth/postgres.env
-  #   depends_on:
-  #     - auth-db
-  #   ports:
-  #     - "5000"
-  #   restart: always
-
-  # auth-db:
-  #   image: postgres:latest
-  #   env_file: ./auth/postgres.env
-  #   restart: always
   mongo:
     image: mongo:3.6
     command: --nojournal
     networks:
       - default1
     env_file: ./dbmaster/db.env
+    volumes:
+      - mongo:/var/lib/mongo  
     # ports:
     #   - "27017:27017"
     # environment:
@@ -80,7 +52,9 @@ services:
     image: mongo:3.6
     command: --nojournal
     networks:
-      - default1    
+      - default1 
+    volumes:
+      - mongorion:/var/lib/mongorion   
   orion:
     image: fiware/orion
     networks:
@@ -111,8 +85,6 @@ services:
       - NODE_ENV=development
       - REACT_APP_SERVICE_URL=http://localhost:80
       - CHOKIDAR_USEPOLLING=true
-    # depends_on:
-    #   - auth
     networks:
       - default1
     restart: always
@@ -122,7 +94,6 @@ services:
     env_file: ./dbmaster/db.env
     depends_on:
       - mongo
-      - dbmaster2-db
     ports:
       - "5002"
     networks:
@@ -136,12 +107,14 @@ services:
     networks:
       - default1
     restart: always
-  dbmaster2-db:
-    image: redis:latest
-    env_file: ./dbmaster/db.env
-    restart: always
-    networks:
-      - default1
+  # dbmaster2-db:
+  #   image: redis:latest
+  #   env_file: ./dbmaster/db.env
+  #   restart: always
+  #   networks:
+  #     - default1
+  #       volumes:
+  #     - mysql-db:/var/lib/mysql
   # dbmaster-db:
   #   image: postgres:latest
   #   env_file: ./dbmaster/db.env
@@ -158,3 +131,5 @@ networks:
 
 volumes:
   mysql-db: ~
+  mongorion: ~
+  mongo: ~

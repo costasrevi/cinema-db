@@ -62,8 +62,10 @@ class DashboardPage extends Component {
       startDate:"",
       endDate:"",
       movie_list: [],
+      data_info:"",
       button1:true,
       moviesfetch:false,
+      temp:false,
       search:"",
       checked2:false,
       button2:true,
@@ -109,7 +111,25 @@ class DashboardPage extends Component {
     }
   }
 
+  // handleSocket(event) {
+
+  //   console.log("socket connect and joinned room");
+  //   var that = this;
+  //   socket.on('message', function(data_info) {
+  //     alert(this.state.data_info);
+  //     console.log("socket on emsasas");
+  //     // that.setState({trash:true,data_info:data_info})
+  //   });
+  //   // setTimeout(() => {
+  //   // if (this.state.trash===true){
+  //     // alert(this.state.data_info);
+  //   //   this.setState({trash:false})
+  //   // }
+  // // }, 20);
+  // } 
+
   componentDidMount() {
+      // t
     if (getCookie("username")!==null){
       this.setState({username:getCookie("username"),user_role:getCookie("role")})
       console.log("movie_list fetcheasdggvcarsdcd",getCookie("username"),getCookie("role"));
@@ -152,6 +172,7 @@ class DashboardPage extends Component {
 
   render() {
     console.log("getCookie(token)11", getCookie("token"));
+    // this.handleSocket();
     if (getCookie("role").length<5){
       alert("access denied");
       console.log("getCookie(token222)", getCookie("token"));
