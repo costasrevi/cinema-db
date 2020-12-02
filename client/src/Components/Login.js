@@ -12,9 +12,6 @@ class Login extends Component {
     this.state = {
       password: "",
       email: "",
-      trash:"",
-      // isAuthenticated: false,
-      // confirmed:checkConfirmed(),
     };
     // this.setState = this.setState.bind(this);
     this.handleChange = this.handleChange.bind(this);
@@ -50,64 +47,32 @@ class Login extends Component {
     .then(function (response) {
       console.log(JSON.stringify(response.data));
       setCookie("token",response.data.access_token);
-      // self.setState({ isAuthenticated:true});
-      // this.setState({ isAuthenticated:response.data.access_token});
     })
     .catch(function (error) {
       console.log(error);
-      // self.setState({ isAuthenticated:false});
     });
+    let token = getCookie("token");
     if (getCookie("token")!==""){
       // this.setState({trash:"tesad"});
-      let token = getCookie("token");
       console.log("this is my fcking token");
       const axios = require('axios');
       axios.get("http://localhost/idm/user?access_token="+token, token).then(
         (response) => {
         console.log("response.data.username",response.data.username);
-        // this.setState({ username :response.data.username});
         setCookie("username",response.data.username);
-        // this.setState({ user_role :response.data.organizations['0'].name});
         setCookie("role",response.data.organizations['0'].name);
-        console.log("this.state.user_role ",this.state.user_role );
-        this.setState({trash:"tesad"});
-        // this.setState({ isAuthenticated :true});
+        console.log("this.state.user_role ", response.data.organizations['0'].name);
         },
         (error) => {
           console.log("this is create user error:",JSON.stringify(error));
           // this.setState({ isAuthenticated :false});
-          this.setState({trash:"tesad"});
         }
       );
     }
-    setTimeout(() => {this.setState({trash:true});}, 50);
+    setTimeout(() => {this.forceUpdate()}, 500);
   };
 
-  componentDidMount() {
-    this.setState({trash:"tesad"});
-  }
 
-  // componentDidMount() {
-  //   if (this.state.username===""){
-  //     let token = getCookie("token");
-  //     const axios = require('axios');
-  //     axios.get("http://localhost/idm/user?access_token="+token, token).then(
-  //       (response) => {
-  //       console.log("response.data.username",response.data.username);
-  //       // this.setState({ username :response.data.username});
-  //       setCookie("username",response.data.username);
-  //       // this.setState({ user_role :response.data.organizations['0'].name});
-  //       setCookie("role",response.data.organizations['0'].name);
-  //       console.log("this.state.user_role ",this.state.user_role );
-  //       // this.setState({ isAuthenticated :true});
-  //       },
-  //       (error) => {
-  //         console.log("this is create user error:",JSON.stringify(error));
-  //         // this.setState({ isAuthenticated :false});
-  //       }
-  //     );
-  //   }
-  // }
   render() {
     console.log("getCookie(token)wtfwtf", getCookie("role")," lebnght ",getCookie("role").length);
     if (getCookie("role").length>=5) {

@@ -45,7 +45,9 @@ class Favorites(db.Document):
     username = db.StringField(primary_key=True)
     Fav_List = db.ListField(db.StringField(unique=True))
 
-
+class Feed(db.Document):
+    username = db.StringField(primary_key=True)
+    Feed_List = db.ListField(db.StringField(unique=True))
 
 # adding a movie to the database the cinema name is the cinema owner username
 @app.route("/dbmaster/addmovie", methods=["POST"])
