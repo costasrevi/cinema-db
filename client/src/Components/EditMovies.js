@@ -2,6 +2,7 @@ import React, { Component, useState } from "react";
 import {
   Container,
   Button,
+  Dropdown,
   Row,
   Table,
   Modal,
@@ -43,6 +44,7 @@ function Movies(props) {
     axios.post(url + "/dbmaster/editMovie",{
       movie_id:props.movies.movie_id,
       title: title.value,
+      token:getCookie("token")
     }).then((response) => {
       console.log("editMovie title success");
     },(error) => {console.log("editMovie title fail");});
@@ -53,6 +55,7 @@ function Movies(props) {
     axios.post(url + "/dbmaster/editMovie",{
       movie_id:props.movies.movie_id,
       startDate: startDate.value,
+      token:getCookie("token")
     }).then((response) => {
       console.log("editMovie startDate success");
     },(error) => {console.log("startDate title fail");});
@@ -63,6 +66,7 @@ function Movies(props) {
     axios.post(url + "/dbmaster/editMovie",{
       movie_id:props.movies.movie_id,
       endDate: endDate.value,
+      token:getCookie("token")
     }).then((response) => {
       console.log("editMovie endDate success");
     },(error) => {console.log("editMovie endDate fail");}
@@ -74,6 +78,7 @@ function Movies(props) {
     axios.post(url + "/dbmaster/editMovie",{
       movie_id:props.movies.movie_id,
       category: category.value,
+      token:getCookie("token")
     }).then((response) => {
       console.log("editMovie category success");
     });
@@ -84,6 +89,7 @@ function Movies(props) {
   const DeleteMovie = () => {
     axios.post(url + "/dbmaster/DeleteMovie",{
       movie_id:props.movies.movie_id,
+      token:getCookie("token")
     }).then((response) => {
       console.log("DeleteMovie category success");
     });
@@ -189,12 +195,14 @@ class EditMovies extends Component {
       username: getCookie("username"),
       user_role: getCookie("role"),
       movie_list: [],
+      movie_list2: [],
       button1:true,
       button2:true,
       movie_fetched:false,
     };
     this.setState = this.setState.bind(this);
     this.handleChange = this.handleChange.bind(this);
+    this.handleChange2 = this.handleChange2.bind(this);
   }
   
   handleChange(event) {
@@ -204,6 +212,17 @@ class EditMovies extends Component {
       this.setState({ movie_list });
     }, (error) => {
       console.log("asdasd");
+    });
+  }
+
+  handleChange2() {
+    // var that = this;
+    axios.post(url + "/dbmaster/getfeed", {username:getCookie("username")}).then((response) => {
+      const movie_list2 = response.data.movies;
+      this.setState({ movie_list2});
+      console.log("movie_list fetched",this.state.movie_list2);
+    }, (error) => {
+      console.log("get feed - Axios Error.");
     });
   }
 
@@ -249,6 +268,20 @@ class EditMovies extends Component {
           </Nav>
           <Form inline>
             <FormControl type="text" placeholder="Search" className="mr-sm-2" onChange={this.handleChange} />
+            <Dropdown onClick={()=>{this.handleChange2()}}>
+                  <Dropdown.Toggle variant="success" id="dropdown-basic" >
+                    Notifications
+                  </Dropdown.Toggle>
+                  <Dropdown.Menu>
+                  {this.state.movie_list2.map((movies) => (
+                    <Dropdown.Item > 
+                    <tr>
+                      This Movie is Updated : {movies.title}
+                    </tr>
+                  </Dropdown.Item>
+                    ))}
+                  </Dropdown.Menu>
+                </Dropdown>
             <Nav.Link href="./logout">Log out</Nav.Link>
           </Form>
           </Navbar>
@@ -269,7 +302,7 @@ class EditMovies extends Component {
               <tbody>
                 {this.state.movie_list.map((movies, index) => (
                   <Movies
-                    onfetched ={()=>(this.setState({movie_fetched:false}))}
+                    onfetched ={()=>(setTimeout(() => {this.setState({movie_fetched:false})}, 20))}
                     key={index}
                     movies={movies}
                   />

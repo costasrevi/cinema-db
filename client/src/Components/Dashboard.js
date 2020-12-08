@@ -1,5 +1,5 @@
 import React, { Component} from "react";
-import { Container,ToggleButton,Navbar,Nav,Form,FormControl, Col, Row, Table } from "react-bootstrap";
+import { Container,ToggleButton,Navbar,Nav,Form,FormControl, Col, Row, Table ,Dropdown} from "react-bootstrap";
 import { getCookie } from "../Authentication/cookies";
 import { Redirect } from "react-router-dom";
 import axios from "axios";
@@ -15,21 +15,25 @@ function Movies(props) {
       axios.post(url + "/dbmaster/addtoFav",{
         movie_id:props.movies.movie_id,
         username:getCookie("username"),
+        token:getCookie("token")
       }).then((response) => {
         console.log("added to fav  success");
+        props.onfetched();
       },(error) => {console.log("added to fav fail");});
     }else{
-
       props.movies.favorite=false;
-      console.log("props.movies.movie_id",props.movies.movie_id);
+      console.log("props.movies.movie_id",props.movies.favorite);
       axios.post(url + "/dbmaster/removeFav",{
         movie_id:props.movies.movie_id,
         username:getCookie("username"),
+        token:getCookie("token")
       }).then((response) => {
         console.log("remove to fav  success");
+        props.onfetched();
       },(error) => {console.log("remove to fav  fail");});
     }
   };
+
   return (
     <tr>
       <td>{props.movies.title}</td>
@@ -47,8 +51,6 @@ function Movies(props) {
         </ToggleButton></td>
     </tr>
   );
-
-
 }
 
 
@@ -57,11 +59,11 @@ class DashboardPage extends Component {
     super();
     this.state = {
       username: getCookie("username"),
-      // auth: true,
       user_role: getCookie("role"),
       startDate:"",
       endDate:"",
       movie_list: [],
+      movie_list2: [],
       data_info:"",
       button1:true,
       moviesfetch:false,
@@ -71,6 +73,7 @@ class DashboardPage extends Component {
       button2:true,
     };
     this.setState = this.setState.bind(this);
+    this.handleChange = this.handleChange.bind(this);
     this.handleChange2 = this.handleChange2.bind(this);
     this.handleChange3 = this.handleChange3.bind(this);
     this.handleChange4 = this.handleChange4.bind(this);
@@ -90,6 +93,16 @@ class DashboardPage extends Component {
     }, 20);
   }
 
+  handleChange() {
+    // var that = this;
+    axios.post(url + "/dbmaster/getfeed", {username:getCookie("username")}).then((response) => {
+      const movie_list2 = response.data.movies;
+      this.setState({ movie_list2});
+      console.log("movie_list fetched",this.state.movie_list2);
+    }, (error) => {
+      console.log("get feed - Axios Error.");
+    });
+  }
 
   handleChange4() {
     if (this.state.checked2){
@@ -111,33 +124,23 @@ class DashboardPage extends Component {
     }
   }
 
-  // handleSocket(event) {
-
-  //   console.log("socket connect and joinned room");
-  //   var that = this;
-  //   socket.on('message', function(data_info) {
-  //     alert(this.state.data_info);
-  //     console.log("socket on emsasas");
-  //     // that.setState({trash:true,data_info:data_info})
-  //   });
-  //   // setTimeout(() => {
-  //   // if (this.state.trash===true){
-  //     // alert(this.state.data_info);
-  //   //   this.setState({trash:false})
-  //   // }
-  // // }, 20);
-  // } 
-
   componentDidMount() {
-      // t
-    if (getCookie("username")!==null){
+    // if (getCookie("username")!==null){
       this.setState({username:getCookie("username"),user_role:getCookie("role")})
-      console.log("movie_list fetcheasdggvcarsdcd",getCookie("username"),getCookie("role"));
+      // console.log("movie_list fetcheasdggvcarsdcd",getCookie("username"),getCookie("role"));
       if (!this.state.moviesfetch){
         axios.post(url + "/dbmaster/getmovies",{username:getCookie("username")}).then((response) => {
+          // console.log("movie_list getmovies",typeof response.data.movies);
           const movie_list = response.data.movies;
           console.log("movie_list fetched");
           this.setState({ movie_list ,moviesfetch:true});
+        });
+        axios.post(url + "/dbmaster/getfeed", {username:getCookie("username")}).then((response) => {
+          const movie_list2 = response.data.movies;
+          this.setState({ movie_list2});
+          console.log("movie_list fetched2222",this.state.movie_list2);
+        }, (error) => {
+          console.log("get feed - Axios Error.");
         });
       }
       if (getCookie("role")=== "Cinemaowner" ) {
@@ -146,7 +149,7 @@ class DashboardPage extends Component {
       if (getCookie("role") === "Admin" ) {
         this.setState({ button2:false });
       }
-    }
+    // }
   }
 
   handleChecked(){
@@ -190,6 +193,20 @@ class DashboardPage extends Component {
               <Form inline>
                 <input type="date" value={this.state.endDate} onChange={this.handleChange2}></input>
                 <FormControl type="text" placeholder="Search" value={this.state.search} className="mr-sm-2" onChange={this.handleChange3} />
+                <Dropdown onClick={()=>{this.handleChange()}}>
+                  <Dropdown.Toggle variant="success" id="dropdown-basic" >
+                    Notifications
+                  </Dropdown.Toggle>
+                  <Dropdown.Menu>
+                  {this.state.movie_list2.map((movies) => (
+                    <Dropdown.Item > 
+                    <tr>
+                      This Movie is Updated : {movies.title}
+                    </tr>
+                  </Dropdown.Item>
+                    ))}
+                  </Dropdown.Menu>
+                </Dropdown>
                 <Nav.Link href="./logout">Log out</Nav.Link>
               </Form>
               </Navbar>
@@ -229,6 +246,7 @@ class DashboardPage extends Component {
                   <tbody>
                   {this.state.movie_list.map((movies, index) => (
                       <Movies
+                        onfetched ={()=>(this.setState({movie_fetched:false}))}
                         key={index}
                         movies={movies}
                       />

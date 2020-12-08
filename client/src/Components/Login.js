@@ -12,6 +12,7 @@ class Login extends Component {
     this.state = {
       password: "",
       email: "",
+      login:false,
     };
     // this.setState = this.setState.bind(this);
     this.handleChange = this.handleChange.bind(this);
@@ -42,22 +43,13 @@ class Login extends Component {
       },
       data : data
     };
-    // var self = this;
     axios(config)
     .then(function (response) {
-      console.log(JSON.stringify(response.data));
-      setCookie("token",response.data.access_token);
-    })
-    .catch(function (error) {
-      console.log(error);
-    });
-    let token = getCookie("token");
-    if (getCookie("token")!==""){
-      // this.setState({trash:"tesad"});
       console.log("this is my fcking token");
       const axios = require('axios');
-      axios.get("http://localhost/idm/user?access_token="+token, token).then(
+      axios.get("http://localhost/idm/user?access_token="+response.data.access_token, response.data.access_token).then(
         (response) => {
+        // setTimeout(() => {this.setState({login:true})}, 100);
         console.log("response.data.username",response.data.username);
         setCookie("username",response.data.username);
         setCookie("role",response.data.organizations['0'].name);
@@ -68,8 +60,14 @@ class Login extends Component {
           // this.setState({ isAuthenticated :false});
         }
       );
-    }
-    setTimeout(() => {this.forceUpdate()}, 500);
+      console.log(JSON.stringify(response.data));
+      setCookie("token",response.data.access_token);
+      setCookie("refresh",response.data.refresh_token);
+    })
+    .catch(function (error) {
+      console.log(error);
+    });
+    setTimeout(() => {this.setState({login:true})}, 500);
   };
 
 
@@ -79,9 +77,7 @@ class Login extends Component {
       console.log("getCookie(token)reaaaalllyyy?", getCookie("role")," lebnght ",getCookie("tokroleen").length);
       return <Redirect to="/dashboard" />;
     }
-    // if (!this.state.confirmed && this.state.isAuthenticated) {
-    //   return <Redirect to="/welcome" />;
-    // }
+
     return (
       <Form
         fluid="md"

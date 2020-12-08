@@ -6,8 +6,6 @@ import axios from "axios";
 import { getCookie ,setCookie} from "../Authentication/cookies";
 
 const url = process.env.REACT_APP_SERVICE_URL;
-// const querystring = require('querystring');
-// const { curly } = require('node-libcurl');
 
 class Register extends Component {
   constructor() {
@@ -96,61 +94,8 @@ class Register extends Component {
           }
         );
       }
-      // if (this.state.checkerror===false){
-      //   setTimeout(() => {
-      //   // var axios = require('axios');
-      //   var qs = require('qs');
-      //   var data = qs.stringify({
-      //   'grant_type': 'password',
-      //   'username': this.state.username,
-      //   'password': this.state.password 
-      //   });
-      //   var config = {
-      //     method: 'post',
-      //     url: 'http://localhost/idm/oauth2/token',
-      //     headers: { 
-      //       'Authorization': 'Basic ZWY5ZTBkMTQtODg1My00MGE2LTg1ZGMtNTA5NGNjMzM3YWNhOmI0OTU1NmNjLThjZDEtNDVhYS1iMjU3LTRiMjJmOTdiNmUyMw==', 
-      //       'Content-Type': 'application/x-www-form-urlencoded'
-      //     },
-      //     data : data
-      //   };
-      //   var self = this;
-      //   axios(config)
-      //   .then(function (response) {
-      //     console.log(JSON.stringify(response.data));
-      //     setCookie("token",response.data.access_token);
-      //     self.setState({ checkCookie:true});
-      //     // this.setState({ isAuthenticated:response.data.access_token});
-      //   })
-      //   .catch(function (error) {
-      //     console.log(error);
-      //     self.setState({ checkCookie:false});
-      //   });
-      // }, 3000);
-      // }
     }
   };
-//used to check if there is a token and if that token is valid
-  // componentDidMount() {
-  //   if (this.state.username===""){
-  //     let token = getCookie("token");
-  //     const axios = require('axios');
-  //     axios.get("http://localhost/idm/user?access_token="+token, token).then(
-  //       (response) => {
-  //       console.log("response.data.username",response.data.username);
-  //       this.setState({ username :response.data.username});
-  //       this.setState({ role :response.data.organizations['0'].name});
-  //       this.setState({ checkCookie :true});
-  //       console.log("this is create user error: checkCookie :true}");
-  //       },
-  //       (error) => {
-  //         console.log("this is create user error:",JSON.stringify(error));
-  //         this.setState({ checkCookie :false});
-  //       }
-  //     );
-  //   }
-  // }
-
 
   render() {
     if (getCookie("role").length>=5) {
@@ -174,24 +119,6 @@ class Register extends Component {
             onChange={this.handleChange}
           />
         </Form.Group>
-        {/* <Form.Group controlId="surname">
-          <Form.Label>Surname</Form.Label>
-          <Form.Control
-            type="text"
-            name="surname"
-            placeholder="Enter surname"
-            onChange={this.handleChange}
-          />
-        </Form.Group> */}
-        {/* <Form.Group controlId="name">
-          <Form.Label>Name</Form.Label>
-          <Form.Control
-            type="text"
-            name="name"
-            placeholder="Enter name"
-            onChange={this.handleChange}
-          />
-        </Form.Group> */}
         <Form.Group controlId="formBasicEmail">
           <Form.Label>Email</Form.Label>
           <Form.Control

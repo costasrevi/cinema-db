@@ -43,16 +43,17 @@ class Movies(db.Document):
 
 class Favorites(db.Document):
     username = db.StringField(primary_key=True)
-    Fav_List = db.ListField(db.StringField(unique=True))
+    Fav_List = db.ListField(db.StringField())
 
 class Feed(db.Document):
     username = db.StringField(primary_key=True)
-    Feed_List = db.ListField(db.StringField(unique=True))
+    Feed_List = db.ListField(db.StringField())
 
 # adding a movie to the database the cinema name is the cinema owner username
 @app.route("/dbmaster/addmovie", methods=["POST"])
 def addmovie():
     title = request.json['title']
+    token = request.json['token']
     startDate = request.json['startDate'].split("T")
     startDate2 =dt.strptime(startDate[0],"%Y-%m-%d")
     endDate = request.json['endDate'].split("T")
@@ -82,7 +83,8 @@ def addmovie():
             }
         }
     headers = {
-    'Content-Type': 'application/json'
+    'Content-Type': 'application/json',
+    'X-Auth-Token':token
     }
     response = requests.request("POST", url, headers=headers, data=jn.dumps(payload))
     # print(response.text)
@@ -119,15 +121,24 @@ def getFav():
     return jsonify(movies=data)
 
 # # getting the movies with cinema name  same  as the cinema owner username
+@app.route("/dbmaster/getfeed", methods=["POST"])
+def getfeed():
+    username = request.json['username']
+    feed=Feed.objects(username=username)
+    fed_list=[]
+    if feed:
+        feed = feed.get(pk=username)
+        for data in feed.Feed_List:
+            fed_list.append(jn.loads(data))
+        fed_list.reverse()
+        return jsonify(movies=fed_list)
+    return Response("getfeed error", status=400)
+
 @app.route("/dbmaster/getownermovies", methods=["POST"])
 def getownermovies():
     username = request.json['username']
-    # temp=
-    # temp = temp.get(cinema=username)
     data = []
-    # data.append(temp)
     for movies in Movies.objects(cinema=username).order_by('endDate'):
-        # data.append(movies)
         data.append({'movie_id': str(movies.id),'title': movies.title,'startDate': movies.startDate.strftime("%a %d/%m/%Y"),'endDate': movies.endDate.strftime("%a %d/%m/%Y"),'cinema': movies.cinema, 'category': movies.category})
     return jsonify(movies=data)
 
@@ -135,19 +146,22 @@ def getownermovies():
 @app.route("/dbmaster/DeleteMovie", methods=["POST"])
 def DeleteMovie():
     movie_id = request.json['movie_id']
+    token = request.json['token']
     Movies.objects(id=movie_id).delete()
     url="http://orion:1026/v2/entities/"+movie_id
-    response = requests.request("DELETE", url,headers = {},data = {})
+    headers = {'X-Auth-Token':token}
+    response = requests.request("DELETE", url,headers = headers,data = {})
     return Response("Userdb deleted with great success"+str(response), status=200)
 
 # We are editing the already added movies and checking which change was requested .Handling one change at a time
 @app.route("/dbmaster/editMovie", methods=["POST"])
 def editMovie():
     movie_id = request.json['movie_id']
+    token = request.json['token']
     movie = Movies.objects(id=movie_id)
     movie = movie.get(id=movie_id)
     url="http://orion:1026/v2/entities/"+movie_id+"/attrs"
-    headers = {'Content-Type': 'application/json'}
+    headers = {'Content-Type': 'application/json','X-Auth-Token':token}
     try:
         title = request.json['title']
         movie.title = title
@@ -212,8 +226,12 @@ def editMovie():
 def addtoFav():
     username = request.json['username']
     movie_id = request.json['movie_id']
-    url="http://orion:1026/v2/subscriptions/"
-    headers = {'Content-Type': 'application/json'}
+    token = request.json['token']
+    # headers = {'Content-Type': 'application/json','X-Auth-Token':token}
+    url="http://orion:1026/v2/subscriptions?options=skipInitialNotification"
+    headers = {'Content-Type': 'application/json','X-Auth-Token':token}
+    # headers = {'Content-Type': 'application/json'}
+    
     data={
         "description": str(movie_id+":"+username),
         "subject": {
@@ -262,6 +280,7 @@ def addtoFav():
 @app.route("/dbmaster/removeFav", methods=["POST"])
 def removeFav():
     username = request.json['username']
+    token = request.json['token']
     movie_id = request.json['movie_id']
     fav=Favorites.objects(username=username)
     if fav:
@@ -270,16 +289,18 @@ def removeFav():
             fav.model = fav['Fav_List'].remove(movie_id)
             fav.save()
         url="http://orion:1026/v2/subscriptions"
-        subs=requests.request("GET", url, headers={}, data={})
+        headers = {'X-Auth-Token':token}
+        subs=requests.request("GET", url, headers=headers, data={})
         temp=subs.json()
         # trash=type(temp)
         for counter in temp:
             if  (movie_id+":"+username)==counter["description"]:
                 # headers = {'Content-Type': 'application/json'}
                 url="http://orion:1026/v2/subscriptions/"+counter["id"]
+
                 asd=requests.request("DELETE", url, headers={}, data={})
                 return Response("movie delete to favorites"+str(asd), status=200)
-        return Response("movie kinda delete to favorites"+str(asd), status=200)
+        return Response("movie kinda delete to favorites", status=200)
     return Response("movie delete to favorites failed", status=500)
 
 # # getting movies depending on search parametrs and also if we want only favorites or not
@@ -346,46 +367,50 @@ def getspecmoviesowner():
 @app.route("/dbmaster/emiter", methods=["POST"])
 def emiter():
     data = request.json['data']
+    # token = request.json['token']
     subscriptionId = request.json['subscriptionId']
     # username = request.json['username']
+    # headers = {'X-Auth-Token':token}
     data2 = data[0]
     url="http://orion:1026/v2/subscriptions"
     subs=requests.request("GET", url, headers={}, data={})
     temp=subs.json()
-    # trash=type(temp)s
+    # feedlist=[]
+    feeddict={"title":data2.get('title').get('value'),
+            "startDate":data2.get('startDate').get('value'),
+            "endDate":data2.get('endDate').get('value'),
+            "category":data2.get('category').get('value'),
+            }
     for counter in temp:
         if subscriptionId == counter["id"]:
-            # data2=counter["description"].split(":")
-            # data2.append(counter["description"].split(":"))
-            data2["username"]=counter["description"].split(":")
+            username=counter["description"].split(":")
+            feed=Feed.objects(username=username[1])
+            if feed:
+                feed = feed.get(pk=username[1])
+                if len(feed['Feed_List'])>=15:
+                    try:
+                        # socketio.emit('are', feedlist)
+                        trash=feed['Feed_List'].pop(0)
+                    except:
+                        pass
+                # feedlist=feedlist.append(jn.dumps(feeddict))
+                feed.model = feed['Feed_List'].append(jn.dumps(feeddict))
+                feed.save()
+                # socketio.emit('message2422', feed)
+            else:
+                feedlist=[jn.dumps(feeddict)]
+                socketio.emit('message2', feedlist)
+                asd=Feed(username=username[1],Feed_List=feedlist)
+                asd.save()
+            data2["username"]=username[1]
     socketio.emit('message', data2)
     return Response("movrtie emiter"+str(data), status=200)
 
 @socketio.on('connect')
 def socket_handler():
-    emit("trash")
-    # return
+    return
 
 
-# @socketio.on('message')
-# def socket_message(data):
-#     emit('message', data)
-#    emit('connection')
-
-# @socketio.on('join')
-# def socket_create_room(room):
-#     join_room(room)
-
-# @app.route('/callback/<address>')
-# def callback(address):
-#     sid = get_sid_from_address(address)
-#     socketio.send('payment seen on blockchain', room=sid)
-
-# @socketio.on('address')
-# def socketlisten(address):
-#     associate_address_with_sid(address, request.sid)
 
 if __name__ == "__main__":
-    # app.run(debug=False)
-    # socketio.run(app)
     socketio.run(app, host="0.0.0.0", port=5002)

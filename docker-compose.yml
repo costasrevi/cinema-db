@@ -99,7 +99,8 @@ services:
     networks:
       - default1
     restart: always
-  pepproxy:
+  wilma:
+    hostname: wilma
     build: ./pepproxy
     image: pepproxy:latest
     ports:
