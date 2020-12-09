@@ -53,7 +53,6 @@ class Feed(db.Document):
 @app.route("/dbmaster/addmovie", methods=["POST"])
 def addmovie():
     title = request.json['title']
-    token = request.json['token']
     startDate = request.json['startDate'].split("T")
     startDate2 =dt.strptime(startDate[0],"%Y-%m-%d")
     endDate = request.json['endDate'].split("T")
@@ -61,7 +60,7 @@ def addmovie():
     cinema = request.json['cinemaname']
     category = request.json['category']
     tempo=Movies(title=title,startDate=startDate2,endDate=endDate2,cinema=cinema,category=category).save()
-    url = "http://orion:1026/v2/entities"
+    url = "http://wilma:1027/v2/entities"
     payload={
         "id": str(tempo.id),
         "type": "movie",
@@ -83,8 +82,7 @@ def addmovie():
             }
         }
     headers = {
-    'Content-Type': 'application/json',
-    'X-Auth-Token':token
+    'Content-Type': 'application/json','X-Auth-Token':'asdasd',
     }
     response = requests.request("POST", url, headers=headers, data=jn.dumps(payload))
     # print(response.text)
@@ -146,22 +144,19 @@ def getownermovies():
 @app.route("/dbmaster/DeleteMovie", methods=["POST"])
 def DeleteMovie():
     movie_id = request.json['movie_id']
-    token = request.json['token']
     Movies.objects(id=movie_id).delete()
-    url="http://orion:1026/v2/entities/"+movie_id
-    headers = {'X-Auth-Token':token}
-    response = requests.request("DELETE", url,headers = headers,data = {})
+    url="http://wilma:1027/v2/entities/"+movie_id
+    response = requests.request("DELETE", url,headers = {'X-Auth-Token':'asdasd'},data = {})
     return Response("Userdb deleted with great success"+str(response), status=200)
 
 # We are editing the already added movies and checking which change was requested .Handling one change at a time
 @app.route("/dbmaster/editMovie", methods=["POST"])
 def editMovie():
     movie_id = request.json['movie_id']
-    token = request.json['token']
     movie = Movies.objects(id=movie_id)
     movie = movie.get(id=movie_id)
-    url="http://orion:1026/v2/entities/"+movie_id+"/attrs"
-    headers = {'Content-Type': 'application/json','X-Auth-Token':token}
+    url="http://wilma:1027/v2/entities/"+movie_id+"/attrs"
+    headers = {'Content-Type': 'application/json','X-Auth-Token':'asdasd'}
     try:
         title = request.json['title']
         movie.title = title
@@ -226,10 +221,8 @@ def editMovie():
 def addtoFav():
     username = request.json['username']
     movie_id = request.json['movie_id']
-    token = request.json['token']
-    # headers = {'Content-Type': 'application/json','X-Auth-Token':token}
-    url="http://orion:1026/v2/subscriptions?options=skipInitialNotification"
-    headers = {'Content-Type': 'application/json','X-Auth-Token':token}
+    url="http://wilma:1027/v2/subscriptions?options=skipInitialNotification"
+    headers = {'Content-Type': 'application/json','X-Auth-Token':'asdasd'}
     # headers = {'Content-Type': 'application/json'}
     
     data={
@@ -280,7 +273,6 @@ def addtoFav():
 @app.route("/dbmaster/removeFav", methods=["POST"])
 def removeFav():
     username = request.json['username']
-    token = request.json['token']
     movie_id = request.json['movie_id']
     fav=Favorites.objects(username=username)
     if fav:
@@ -288,17 +280,16 @@ def removeFav():
         if movie_id in fav['Fav_List']:
             fav.model = fav['Fav_List'].remove(movie_id)
             fav.save()
-        url="http://orion:1026/v2/subscriptions"
-        headers = {'X-Auth-Token':token}
-        subs=requests.request("GET", url, headers=headers, data={})
+        url="http://wilma:1027/v2/subscriptions"
+        subs=requests.request("GET", url, headers={'X-Auth-Token':'asdasd'}, data={})
         temp=subs.json()
         # trash=type(temp)
         for counter in temp:
             if  (movie_id+":"+username)==counter["description"]:
                 # headers = {'Content-Type': 'application/json'}
-                url="http://orion:1026/v2/subscriptions/"+counter["id"]
+                url="http://wilma:1027/v2/subscriptions/"+counter["id"]
 
-                asd=requests.request("DELETE", url, headers={}, data={})
+                asd=requests.request("DELETE", url, headers={'X-Auth-Token':'asdasd'}, data={})
                 return Response("movie delete to favorites"+str(asd), status=200)
         return Response("movie kinda delete to favorites", status=200)
     return Response("movie delete to favorites failed", status=500)
@@ -367,13 +358,11 @@ def getspecmoviesowner():
 @app.route("/dbmaster/emiter", methods=["POST"])
 def emiter():
     data = request.json['data']
-    # token = request.json['token']
     subscriptionId = request.json['subscriptionId']
     # username = request.json['username']
-    # headers = {'X-Auth-Token':token}
     data2 = data[0]
-    url="http://orion:1026/v2/subscriptions"
-    subs=requests.request("GET", url, headers={}, data={})
+    url="http://wilma:1027/v2/subscriptions"
+    subs=requests.request("GET", url, headers={'X-Auth-Token':'asdasd'}, data={})
     temp=subs.json()
     # feedlist=[]
     feeddict={"title":data2.get('title').get('value'),

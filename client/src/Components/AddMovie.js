@@ -37,7 +37,6 @@ class AddMovie extends Component {
       endDate: this.state.endDate._d,
       cinemaname: this.state.username,
       category: this.state.category,
-      token:getCookie("token")
     };
     console.log("movie success",moviedata);
     if (moviedata.title !== "" && moviedata.startDate !== null && moviedata.endDate !== null && moviedata.cinemaname !== "" ){

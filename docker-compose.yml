@@ -104,7 +104,16 @@ services:
     build: ./pepproxy
     image: pepproxy:latest
     ports:
-      - "1027"
+      - "1027:1027"
+    networks:
+      - default1
+    restart: always
+  wilma2:
+    hostname: wilma2
+    build: ./pepproxyData
+    image: pepproxydata:latest
+    ports:
+      - "1028:1028"
     networks:
       - default1
     restart: always

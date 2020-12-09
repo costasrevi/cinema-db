@@ -15,7 +15,6 @@ function Movies(props) {
       axios.post(url + "/dbmaster/addtoFav",{
         movie_id:props.movies.movie_id,
         username:getCookie("username"),
-        token:getCookie("token")
       }).then((response) => {
         console.log("added to fav  success");
         props.onfetched();
@@ -26,7 +25,6 @@ function Movies(props) {
       axios.post(url + "/dbmaster/removeFav",{
         movie_id:props.movies.movie_id,
         username:getCookie("username"),
-        token:getCookie("token")
       }).then((response) => {
         console.log("remove to fav  success");
         props.onfetched();

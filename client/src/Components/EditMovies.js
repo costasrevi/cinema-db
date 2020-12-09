@@ -55,7 +55,6 @@ function Movies(props) {
     axios.post(url + "/dbmaster/editMovie",{
       movie_id:props.movies.movie_id,
       startDate: startDate.value,
-      token:getCookie("token")
     }).then((response) => {
       console.log("editMovie startDate success");
     },(error) => {console.log("startDate title fail");});
@@ -66,7 +65,6 @@ function Movies(props) {
     axios.post(url + "/dbmaster/editMovie",{
       movie_id:props.movies.movie_id,
       endDate: endDate.value,
-      token:getCookie("token")
     }).then((response) => {
       console.log("editMovie endDate success");
     },(error) => {console.log("editMovie endDate fail");}
@@ -78,7 +76,6 @@ function Movies(props) {
     axios.post(url + "/dbmaster/editMovie",{
       movie_id:props.movies.movie_id,
       category: category.value,
-      token:getCookie("token")
     }).then((response) => {
       console.log("editMovie category success");
     });
@@ -89,7 +86,6 @@ function Movies(props) {
   const DeleteMovie = () => {
     axios.post(url + "/dbmaster/DeleteMovie",{
       movie_id:props.movies.movie_id,
-      token:getCookie("token")
     }).then((response) => {
       console.log("DeleteMovie category success");
     });
