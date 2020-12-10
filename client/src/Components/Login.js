@@ -1,20 +1,20 @@
 import React, { Component } from "react";
 import { Redirect } from "react-router-dom";
 import { Form, Button, Col } from "react-bootstrap";
-import axios from "axios";
-import { checkCookie, setCookie,checkConfirmed } from "../Authentication/cookies";
+// import axios from "axios";
+import { setCookie, getCookie , checkCookie } from "../Authentication/cookies";
 
-const url = process.env.REACT_APP_SERVICE_URL;
+// const url = process.env.REACT_APP_SERVICE_URL;
 
 class Login extends Component {
   constructor() {
     super();
     this.state = {
-      username: "",
       password: "",
-      isAuthenticated: checkCookie(),
-      confirmed:checkConfirmed(),
+      email: "",
+      login:false,
     };
+    // this.setState = this.setState.bind(this);
     this.handleChange = this.handleChange.bind(this);
   }
 
@@ -27,35 +27,57 @@ class Login extends Component {
   handleSubmit = async (event) => {
     event.preventDefault();
 
-    const user_data = {
-      username: this.state.username,
-      password: this.state.password,
-      confirmed: this.state.confirmed,
-      isAuthenticated: false,
-    };
-
-    await axios.post(url + "/auth/login", user_data).then(
-      (response) => {
-        setCookie("token", response.data);
-        this.setState({ isAuthenticated: true ,confirmed: true});
+    var axios = require('axios');
+    var qs = require('qs');
+    var data = qs.stringify({
+    'grant_type': 'password',
+    'username': this.state.email,
+    'password': this.state.password 
+    });
+    var config = {
+      method: 'post',
+      url: 'http://localhost/idm/oauth2/token',
+      headers: { 
+        'Authorization': 'Basic ZWY5ZTBkMTQtODg1My00MGE2LTg1ZGMtNTA5NGNjMzM3YWNhOmI0OTU1NmNjLThjZDEtNDVhYS1iMjU3LTRiMjJmOTdiNmUyMw==', 
+        'Content-Type': 'application/x-www-form-urlencoded'
       },
-      (error) => {
-        if (error.error === 'not confirmed'){
-
+      data : data
+    };
+    axios(config)
+    .then(function (response) {
+      console.log("this is my fcking token");
+      const axios = require('axios');
+      axios.get("http://localhost/idm/user?access_token="+response.data.access_token, response.data.access_token).then(
+        (response) => {
+        // setTimeout(() => {this.setState({login:true})}, 100);
+        console.log("response.data.username",response.data.username);
+        setCookie("username",response.data.username);
+        setCookie("role",response.data.organizations['0'].name);
+        console.log("this.state.user_role ", response.data.organizations['0'].name);
+        },
+        (error) => {
+          console.log("this is create user error:",JSON.stringify(error));
+          // this.setState({ isAuthenticated :false});
         }
-        alert("Authentication Unsuccesful. Please check your credentials.");
-      }
-    );
-    // this.setState({ username: "", password: "", confirmed: false });
+      );
+      console.log(JSON.stringify(response.data));
+      setCookie("token",response.data.access_token);
+      setCookie("refresh",response.data.refresh_token);
+    })
+    .catch(function (error) {
+      console.log(error);
+    });
+    setTimeout(() => {this.setState({login:true})}, 500);
   };
 
+
   render() {
-    if (this.state.isAuthenticated && this.state.confirmed) {
+    console.log("getCookie(token)wtfwtf", getCookie("role")," lebnght ",getCookie("role").length);
+    if (getCookie("role").length>=5) {
+      console.log("getCookie(token)reaaaalllyyy?", getCookie("role")," lebnght ",getCookie("tokroleen").length);
       return <Redirect to="/dashboard" />;
     }
-    if (!this.state.confirmed && this.state.isAuthenticated) {
-      return <Redirect to="/welcome" />;
-    }
+
     return (
       <Form
         fluid="md"
@@ -66,11 +88,11 @@ class Login extends Component {
           <h3>Sign In</h3>
         </Form.Row>
         <Form.Group controlId="formBasicUsername">
-          <Form.Label>Username</Form.Label>
+          <Form.Label>Email</Form.Label>
           <Form.Control
             type="text"
-            name="username"
-            placeholder="Enter username"
+            name="email"
+            placeholder="Enter email"
             onChange={this.handleChange}
           />
         </Form.Group>

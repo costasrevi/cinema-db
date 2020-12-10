@@ -1,28 +1,81 @@
-version: "3.4"
+version: "3.5"
 
 services:
-  auth:
-    build: ./auth
-    image: auth:latest
-    env_file: ./auth/postgres.env
+
+  keyrock:
+    hostname: keyrock
+    build: ./keyrock
+    image: keyrock:latest
+    # env_file: ./auth/postgres.env
     depends_on:
-      - auth-db
+      - mysql-db
     ports:
-      - "5000"
+      - '3001:3001'
+      - '443:443'
+    networks:
+      default1:
+        ipv4_address: 172.19.1.23
     restart: always
-  auth-db:
-    image: postgres:latest
-    env_file: ./auth/postgres.env
+  mysql-db:
     restart: always
+    image: mysql:5.7.32
+    hostname: mysql-db
+    container_name: db-mysql
+    expose:
+      - "3306"
+    ports:
+      - "3306:3306"
+    networks:
+      default1:
+        ipv4_address: 172.19.1.22
+    environment:
+      # Development use only 
+      # Use Docker Secrets for Sensitive Data
+      - "MYSQL_ROOT_PASSWORD=secret"
+      - "MYSQL_ROOT_HOST=172.19.1.23"
+    volumes:
+      - mysql-db:/var/lib/mysql
+  mongo:
+    image: mongo:3.6
+    command: --nojournal
+    networks:
+      - default1
+    env_file: ./dbmaster/db.env
+    volumes:
+      - mongo:/var/lib/mongo  
+    # ports:
+    #   - "27017:27017"
+    # environment:
+    #   - MONGO_INITDB_ROOT_USERNAME=root
+    #   - MONGO_INITDB_ROOT_PASSWORD=1234  
+  mongorion:
+    image: mongo:3.6
+    command: --nojournal
+    networks:
+      - default1 
+    volumes:
+      - mongorion:/var/lib/mongorion   
+  orion:
+    image: fiware/orion
+    networks:
+      - default1
+    depends_on:
+      - mongorion
+    ports:
+      - "1026:1026"
+    command: -dbhost mongorion
   nginx:
     build: ./nginx
     image: nginx:latest
     ports:
       - 80:80
     depends_on:
-      - auth
+      # - auth
       - client
+      - keyrock
     restart: always
+    networks:
+      - default1
   client:
     build: ./client
     image: client:latest
@@ -32,24 +85,61 @@ services:
       - NODE_ENV=development
       - REACT_APP_SERVICE_URL=http://localhost:80
       - CHOKIDAR_USEPOLLING=true
-    depends_on:
-      - auth
+    networks:
+      - default1
     restart: always
   dbmaster:
     build: ./dbmaster
     image: dbmaster:latest
     env_file: ./dbmaster/db.env
     depends_on:
-      - dbmaster-db
-      - dbmaster2-db
+      - mongo
     ports:
       - "5002"
+    networks:
+      - default1
     restart: always
-  dbmaster2-db:
-    image: redis:latest
-    env_file: ./dbmaster/db.env
+  wilma:
+    hostname: wilma
+    build: ./pepproxy
+    image: pepproxy:latest
+    ports:
+      - "1027:1027"
+    networks:
+      - default1
     restart: always
-  dbmaster-db:
-    image: postgres:latest
-    env_file: ./dbmaster/db.env
+  wilma2:
+    hostname: wilma2
+    build: ./pepproxyData
+    image: pepproxydata:latest
+    ports:
+      - "1028:1028"
+    networks:
+      - default1
     restart: always
+  # dbmaster2-db:
+  #   image: redis:latest
+  #   env_file: ./dbmaster/db.env
+  #   restart: always
+  #   networks:
+  #     - default1
+  #       volumes:
+  #     - mysql-db:/var/lib/mysql
+  # dbmaster-db:
+  #   image: postgres:latest
+  #   env_file: ./dbmaster/db.env
+  #   restart: always
+  #   networks:
+  #     - default1
+
+
+networks:
+  default1:
+    ipam:
+      config:
+        - subnet: 172.19.1.0/24
+
+volumes:
+  mysql-db: ~
+  mongorion: ~
+  mongo: ~

@@ -3,7 +3,7 @@ import { Redirect } from "react-router-dom";
 import { Form, Button, Col } from "react-bootstrap";
 import axios from "axios";
 
-import { checkCookie, setCookie,checkConfirmed } from "../Authentication/cookies";
+import { getCookie ,setCookie} from "../Authentication/cookies";
 
 const url = process.env.REACT_APP_SERVICE_URL;
 
@@ -14,11 +14,12 @@ class Register extends Component {
       username: "",
       password: "",
       email: "",
-      name: "",
-      surname: "",
+      id: "",
       role:"User",
-      checkConfirmed: checkConfirmed(),
-      isAuthenticated: checkCookie(),
+      trash:false,
+      checkCookie: false,
+      checkerror: false,
+      xtoken: "",
     };
     this.handleChange = this.handleChange.bind(this);
     this.handleChange2 = this.handleChange2.bind(this);
@@ -35,33 +36,74 @@ class Register extends Component {
 
   handleSubmit = async (event) => {
     event.preventDefault();
-    const user_data = {
-      username: this.state.username,
-      email: this.state.email,
-      password: this.state.password,
-      name: this.state.name,
-      surname: this.state.surname,
-      role: this.state.role,
-      isAuthenticated: false,
-    };
-    await axios.post(url + "/auth/register", user_data).then(
+    var data = JSON.stringify({"name":"admin@test.com","password":"1234"});
+
+    var config = {headers: 
+      {"Content-Type": "application/json"}
+    }
+    await axios.post("http://localhost/idm/v1/auth/tokens", data,config).then(
       (response) => {
-        setCookie("token", response.data);
-        this.setState({ isAuthenticated: true });
+        // setCookie("token", response.data);
+      console.log(JSON.stringify(response.data));
+      this.setState({ xtoken:response.headers['x-subject-token']});
+      console.log('x-subject-token',this.state.xtoken);
       },
       (error) => {
+        this.setState({ checkerror:true});
         alert("Registration Unsuccesful. Please check your credentials.");
       }
     );
-    this.setState({ username: "", email: "", password: "" });
+    if (this.state.checkerror===false){
+      var config2 = {headers: 
+        {"Content-Type": "application/json",
+        "X-Auth-token":this.state.xtoken}
+      }
+      console.log(this.state.username,this.state.email,this.state.password)
+      var data2 = JSON.stringify({"user":{"username":this.state.username,"email":this.state.email,"password":this.state.password}});
+      await axios.post("http://localhost/idm/v1/users", data2,config2).then(
+        (response) => {
+        console.log(JSON.stringify(response.data));
+        this.setState({ id: response.data.user['id']});
+        },
+        (error) => {
+          console.log("this is create user error:",JSON.stringify(error));
+          this.setState({ checkerror:true});
+          // alert("Registration Unsuccesful. Please check your credentials.");
+        }
+      );
+      if (this.state.role==="User"){
+        this.setState({ role:"d91270ac-cd6c-47de-9b04-a82e3808872d"});
+      }
+      if (this.state.role==="cinema_owner"){
+        this.setState({ role:"2620ec62-f40f-45eb-b6d0-66d2ab40da84"});
+      }
+      if (this.state.role==="Admin"){
+        this.setState({ role:"64664451-576c-46f1-ae4a-5a9afca0be3c"});
+      }
+      if (this.state.checkerror===false){
+        await axios.post("http://localhost/idm/v1/organizations/"+this.state.role+"/users/"+this.state.id+"/organization_roles/member", data2,config2).then(
+          (response) => {
+          console.log(JSON.stringify(response.data));
+          this.setState({trash:true});
+          // window.location.replace('http://localhost");
+          },
+          (error) => {
+            console.log("add to org error:",JSON.stringify(error));
+            this.setState({ checkerror:true});
+            // alert("Registration Unsuccesful. Please check your credentials.");
+          }
+        );
+      }
+    }
   };
 
   render() {
-    if (!this.state.checkConfirmed && this.state.isAuthenticated) {
-      return <Redirect to="/welcome" />;
-    }
-    if (this.state.checkConfirmed && this.state.isAuthenticated) {
+    if (getCookie("role").length>=5) {
       return <Redirect to="/dashboard" />;
+    }
+    if (this.state.trash===true){
+      alert("Now login to continue");
+      return <Redirect to="/login" />;
     }
     return (
       <Form className="my-form" onSubmit={this.handleSubmit}>
@@ -74,24 +116,6 @@ class Register extends Component {
             type="text"
             name="username"
             placeholder="Enter username"
-            onChange={this.handleChange}
-          />
-        </Form.Group>
-        <Form.Group controlId="surname">
-          <Form.Label>Surname</Form.Label>
-          <Form.Control
-            type="text"
-            name="surname"
-            placeholder="Enter surname"
-            onChange={this.handleChange}
-          />
-        </Form.Group>
-        <Form.Group controlId="name">
-          <Form.Label>Name</Form.Label>
-          <Form.Control
-            type="text"
-            name="name"
-            placeholder="Enter name"
             onChange={this.handleChange}
           />
         </Form.Group>

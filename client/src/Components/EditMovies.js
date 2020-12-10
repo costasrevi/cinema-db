@@ -2,12 +2,13 @@ import React, { Component, useState } from "react";
 import {
   Container,
   Button,
+  Dropdown,
   Row,
   Table,
   Modal,
   Form,Navbar,Nav,FormControl,
 } from "react-bootstrap";
-import { checkCookie, checkUser,checkConfirmed ,checkowner} from "../Authentication/cookies";
+import { getCookie} from "../Authentication/cookies";
 import axios from "axios";
 import { Redirect } from "react-router-dom";
 
@@ -43,7 +44,7 @@ function Movies(props) {
     axios.post(url + "/dbmaster/editMovie",{
       movie_id:props.movies.movie_id,
       title: title.value,
-    }).then((response) => {
+    },{headers:{'Content-Type': 'application/json','X-Auth-Token':getCookie ('token')}}).then((response) => {
       console.log("editMovie title success");
     },(error) => {console.log("editMovie title fail");});
     props.onfetched();
@@ -53,7 +54,7 @@ function Movies(props) {
     axios.post(url + "/dbmaster/editMovie",{
       movie_id:props.movies.movie_id,
       startDate: startDate.value,
-    }).then((response) => {
+    },{headers:{'Content-Type': 'application/json','X-Auth-Token':getCookie ('token')}}).then((response) => {
       console.log("editMovie startDate success");
     },(error) => {console.log("startDate title fail");});
     props.onfetched();
@@ -63,7 +64,7 @@ function Movies(props) {
     axios.post(url + "/dbmaster/editMovie",{
       movie_id:props.movies.movie_id,
       endDate: endDate.value,
-    }).then((response) => {
+    },{headers:{'Content-Type': 'application/json','X-Auth-Token':getCookie ('token')}}).then((response) => {
       console.log("editMovie endDate success");
     },(error) => {console.log("editMovie endDate fail");}
     );
@@ -74,7 +75,7 @@ function Movies(props) {
     axios.post(url + "/dbmaster/editMovie",{
       movie_id:props.movies.movie_id,
       category: category.value,
-    }).then((response) => {
+    },{headers:{'Content-Type': 'application/json','X-Auth-Token':getCookie ('token')}}).then((response) => {
       console.log("editMovie category success");
     });
     props.onfetched();
@@ -84,7 +85,7 @@ function Movies(props) {
   const DeleteMovie = () => {
     axios.post(url + "/dbmaster/DeleteMovie",{
       movie_id:props.movies.movie_id,
-    }).then((response) => {
+    },{headers:{'Content-Type': 'application/json','X-Auth-Token':getCookie ('token')}}).then((response) => {
       console.log("DeleteMovie category success");
     });
     props.onfetched();
@@ -186,20 +187,21 @@ class EditMovies extends Component {
   constructor() {
     super();
     this.state = {
-      username: checkCookie(),
-      user_role: checkUser(),
-      confirmed: checkConfirmed(),
+      username: getCookie("username"),
+      user_role: getCookie("role"),
       movie_list: [],
+      movie_list2: [],
       button1:true,
       button2:true,
       movie_fetched:false,
     };
     this.setState = this.setState.bind(this);
     this.handleChange = this.handleChange.bind(this);
+    this.handleChange2 = this.handleChange2.bind(this);
   }
   
   handleChange(event) {
-    axios.post(url + "/dbmaster/getspecmoviesowner", {search:event.target.value,owner:this.state.username}).then((response) => {
+    axios.post(url + "/dbmaster/getspecmoviesowner", {search:event.target.value,owner:this.state.username},{headers:{'Content-Type': 'application/json','X-Auth-Token':getCookie ('token')}}).then((response) => {
       const movie_list = response.data.movies;
       console.log("movie_list fetched");
       this.setState({ movie_list });
@@ -208,10 +210,21 @@ class EditMovies extends Component {
     });
   }
 
+  handleChange2() {
+    // var that = this;
+    axios.post(url + "/dbmaster/getfeed", {username:getCookie("username")},{headers:{'Content-Type': 'application/json','X-Auth-Token':getCookie ('token')}}).then((response) => {
+      const movie_list2 = response.data.movies;
+      this.setState({ movie_list2});
+      console.log("movie_list fetched",this.state.movie_list2);
+    }, (error) => {
+      console.log("get feed - Axios Error.");
+    });
+  }
+
   fetchMovieList(){
     axios.post(url + "/dbmaster/getownermovies",{
       username: this.state.username,
-    }).then((response) => {
+    },{headers:{'Content-Type': 'application/json','X-Auth-Token':getCookie ('token')}}).then((response) => {
       const movie_list = response.data.movies;
       this.setState({ movie_list: movie_list,movie_fetched:true});
     });
@@ -223,17 +236,19 @@ class EditMovies extends Component {
   }
 
   componentDidMount(){
-    if (this.state.user_role === "cinema_owner" && this.state.confirmed===true) {
+    if (this.state.user_role === "Cinemaowner" ) {
       this.setState({ button1:false });
     }
-    if (this.state.user_role === "admin" && this.state.confirmed===true) {
+    if (this.state.user_role === "Admin" ) {
       this.setState({ button2:false });
     }
     this.fetchMovieList()
   }
   
   render() {
-    if (checkowner()===null){
+    console.log("getCookie(role)",getCookie("role"));
+    //var role= getCookie("role");
+    if (getCookie("role")!=="Cinemaowner"){
       alert("access denied");
       return (<Redirect to="/dashboard" />);}
     else{
@@ -248,6 +263,20 @@ class EditMovies extends Component {
           </Nav>
           <Form inline>
             <FormControl type="text" placeholder="Search" className="mr-sm-2" onChange={this.handleChange} />
+            <Dropdown onClick={()=>{this.handleChange2()}}>
+                  <Dropdown.Toggle variant="success" id="dropdown-basic" >
+                    Notifications
+                  </Dropdown.Toggle>
+                  <Dropdown.Menu>
+                  {this.state.movie_list2.map((movies) => (
+                    <Dropdown.Item > 
+                    <tr>
+                      This Movie is Updated : {movies.title}
+                    </tr>
+                  </Dropdown.Item>
+                    ))}
+                  </Dropdown.Menu>
+                </Dropdown>
             <Nav.Link href="./logout">Log out</Nav.Link>
           </Form>
           </Navbar>
@@ -268,7 +297,7 @@ class EditMovies extends Component {
               <tbody>
                 {this.state.movie_list.map((movies, index) => (
                   <Movies
-                    onfetched ={()=>(this.setState({movie_fetched:false}))}
+                    onfetched ={()=>(setTimeout(() => {this.setState({movie_fetched:false})}, 20))}
                     key={index}
                     movies={movies}
                   />

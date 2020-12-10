@@ -5,7 +5,7 @@ import axios from "axios";
 import 'react-dates/initialize';
 import { DateRangePicker } from 'react-dates';
 import 'react-dates/lib/css/_datepicker.css';
-import { checkCookie, checkowner } from "../Authentication/cookies";
+import { getCookie } from "../Authentication/cookies";
 
 const url = process.env.REACT_APP_SERVICE_URL;
 
@@ -17,10 +17,10 @@ class AddMovie extends Component {
         title: "",
         startdate: null,
         enddate: null,
-        username:checkCookie(),
+        username:getCookie("username"),
         focusedInput:"",
         category: "",
-      isAuthenticated: checkCookie(),
+        isAuthenticated: true,
     };
     this.handleChange = this.handleChange.bind(this);
   }
@@ -40,7 +40,7 @@ class AddMovie extends Component {
     };
     console.log("movie success",moviedata);
     if (moviedata.title !== "" && moviedata.startDate !== null && moviedata.endDate !== null && moviedata.cinemaname !== "" ){
-      await axios.post(url + "/dbmaster/addmovie", moviedata).then(
+      await axios.post(url + "/dbmaster/addmovie", moviedata,{headers:{'Content-Type': 'application/json','X-Auth-Token':getCookie ('token')}}).then(
         (response) => {
           alert("Movie added successfully");
         },
@@ -49,9 +49,9 @@ class AddMovie extends Component {
         }
       );}
   };
-  
+
   render() {
-    if (checkowner()===null){
+    if (getCookie("role")!=="Cinemaowner"){
       alert("access denied");
       return (<Redirect to="/dashboard" />);}
     else{

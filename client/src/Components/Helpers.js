@@ -1,6 +1,6 @@
 import React from "react";
 import { Route, Redirect } from "react-router-dom";
-import { checkCookie } from "../Authentication/cookies.js";
+import { getCookie } from "../Authentication/cookies.js";
 
 const PrivateRoute = ({ component: Component, ...rest }) => {
   return (
@@ -9,10 +9,10 @@ const PrivateRoute = ({ component: Component, ...rest }) => {
     <Route
       {...rest}
       render={(props) =>
-        checkCookie() !== null ? (
+        getCookie("role") !== null ? (
           <Component {...props} />
         ) : (
-          <Redirect to="/login" />
+          <Redirect to="localhost:3001" />
         )
       }
     />

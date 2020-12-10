@@ -16,6 +16,17 @@ docker-compose up --build
 ```bash
 docker-compose down
 ```
+Τεχνολογίες που χρησιμοποιήθηκαν είναι :
+Για το front-end:
+	JavaScript
+	React
+Για το back-end:
+	Python
+	Docker
+	Flask
+	Βάσεις δεδομένων 
+		Postgres
+		Redis
 
 **_NOTE_** Default administrator is admin | admin
 
