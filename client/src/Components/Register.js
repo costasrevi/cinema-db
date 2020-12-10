@@ -41,7 +41,7 @@ class Register extends Component {
     var config = {headers: 
       {"Content-Type": "application/json"}
     }
-    await axios.post("http://localhost/idm/v1/auth/tokens", data,config).then(
+    await axios.post(url+"/idm/v1/auth/tokens", data,config).then(
       (response) => {
         // setCookie("token", response.data);
       console.log(JSON.stringify(response.data));
@@ -60,7 +60,7 @@ class Register extends Component {
       }
       console.log(this.state.username,this.state.email,this.state.password)
       var data2 = JSON.stringify({"user":{"username":this.state.username,"email":this.state.email,"password":this.state.password}});
-      await axios.post("http://localhost/idm/v1/users", data2,config2).then(
+      await axios.post(url+"/idm/v1/users", data2,config2).then(
         (response) => {
         console.log(JSON.stringify(response.data));
         this.setState({ id: response.data.user['id']});
@@ -81,7 +81,7 @@ class Register extends Component {
         this.setState({ role:"64664451-576c-46f1-ae4a-5a9afca0be3c"});
       }
       if (this.state.checkerror===false){
-        await axios.post("http://localhost/idm/v1/organizations/"+this.state.role+"/users/"+this.state.id+"/organization_roles/member", data2,config2).then(
+        await axios.post(url+"/idm/v1/organizations/"+this.state.role+"/users/"+this.state.id+"/organization_roles/member", data2,config2).then(
           (response) => {
           console.log(JSON.stringify(response.data));
           this.setState({trash:true});

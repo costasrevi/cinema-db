@@ -186,7 +186,7 @@ class DashboardPage extends Component {
               <Nav className="mr-auto">
                 <Nav.Link href="./dashboard">Home</Nav.Link>
                 <Nav.Link disabled={this.state.button1} href="./editmovies">Edit Movies</Nav.Link>
-                <Nav.Link disabled={this.state.button2} href="./admin">Admin Panel</Nav.Link>
+                <Nav.Link disabled={this.state.button2} href=":3001">Admin Panel</Nav.Link>
               </Nav>
               <Form inline>
                 <input type="date" value={this.state.endDate} onChange={this.handleChange2}></input>

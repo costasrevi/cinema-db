@@ -4,7 +4,7 @@ import { Form, Button, Col } from "react-bootstrap";
 // import axios from "axios";
 import { setCookie, getCookie , checkCookie } from "../Authentication/cookies";
 
-// const url = process.env.REACT_APP_SERVICE_URL;
+const url = process.env.REACT_APP_SERVICE_URL;
 
 class Login extends Component {
   constructor() {
@@ -36,7 +36,7 @@ class Login extends Component {
     });
     var config = {
       method: 'post',
-      url: 'http://localhost/idm/oauth2/token',
+      url: url+'/idm/oauth2/token',
       headers: { 
         'Authorization': 'Basic ZWY5ZTBkMTQtODg1My00MGE2LTg1ZGMtNTA5NGNjMzM3YWNhOmI0OTU1NmNjLThjZDEtNDVhYS1iMjU3LTRiMjJmOTdiNmUyMw==', 
         'Content-Type': 'application/x-www-form-urlencoded'
@@ -47,7 +47,7 @@ class Login extends Component {
     .then(function (response) {
       console.log("this is my fcking token");
       const axios = require('axios');
-      axios.get("http://localhost/idm/user?access_token="+response.data.access_token, response.data.access_token).then(
+      axios.get(url+"/idm/user?access_token="+response.data.access_token, response.data.access_token).then(
         (response) => {
         // setTimeout(() => {this.setState({login:true})}, 100);
         console.log("response.data.username",response.data.username);
