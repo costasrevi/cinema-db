@@ -44,8 +44,7 @@ function Movies(props) {
     axios.post(url + "/dbmaster/editMovie",{
       movie_id:props.movies.movie_id,
       title: title.value,
-      token:getCookie("token")
-    }).then((response) => {
+    },{headers:{'Content-Type': 'application/json','X-Auth-Token':getCookie ('token')}}).then((response) => {
       console.log("editMovie title success");
     },(error) => {console.log("editMovie title fail");});
     props.onfetched();
@@ -55,7 +54,7 @@ function Movies(props) {
     axios.post(url + "/dbmaster/editMovie",{
       movie_id:props.movies.movie_id,
       startDate: startDate.value,
-    }).then((response) => {
+    },{headers:{'Content-Type': 'application/json','X-Auth-Token':getCookie ('token')}}).then((response) => {
       console.log("editMovie startDate success");
     },(error) => {console.log("startDate title fail");});
     props.onfetched();
@@ -65,7 +64,7 @@ function Movies(props) {
     axios.post(url + "/dbmaster/editMovie",{
       movie_id:props.movies.movie_id,
       endDate: endDate.value,
-    }).then((response) => {
+    },{headers:{'Content-Type': 'application/json','X-Auth-Token':getCookie ('token')}}).then((response) => {
       console.log("editMovie endDate success");
     },(error) => {console.log("editMovie endDate fail");}
     );
@@ -76,7 +75,7 @@ function Movies(props) {
     axios.post(url + "/dbmaster/editMovie",{
       movie_id:props.movies.movie_id,
       category: category.value,
-    }).then((response) => {
+    },{headers:{'Content-Type': 'application/json','X-Auth-Token':getCookie ('token')}}).then((response) => {
       console.log("editMovie category success");
     });
     props.onfetched();
@@ -86,7 +85,7 @@ function Movies(props) {
   const DeleteMovie = () => {
     axios.post(url + "/dbmaster/DeleteMovie",{
       movie_id:props.movies.movie_id,
-    }).then((response) => {
+    },{headers:{'Content-Type': 'application/json','X-Auth-Token':getCookie ('token')}}).then((response) => {
       console.log("DeleteMovie category success");
     });
     props.onfetched();
@@ -202,7 +201,7 @@ class EditMovies extends Component {
   }
   
   handleChange(event) {
-    axios.post(url + "/dbmaster/getspecmoviesowner", {search:event.target.value,owner:this.state.username}).then((response) => {
+    axios.post(url + "/dbmaster/getspecmoviesowner", {search:event.target.value,owner:this.state.username},{headers:{'Content-Type': 'application/json','X-Auth-Token':getCookie ('token')}}).then((response) => {
       const movie_list = response.data.movies;
       console.log("movie_list fetched");
       this.setState({ movie_list });
@@ -213,7 +212,7 @@ class EditMovies extends Component {
 
   handleChange2() {
     // var that = this;
-    axios.post(url + "/dbmaster/getfeed", {username:getCookie("username")}).then((response) => {
+    axios.post(url + "/dbmaster/getfeed", {username:getCookie("username")},{headers:{'Content-Type': 'application/json','X-Auth-Token':getCookie ('token')}}).then((response) => {
       const movie_list2 = response.data.movies;
       this.setState({ movie_list2});
       console.log("movie_list fetched",this.state.movie_list2);
@@ -225,7 +224,7 @@ class EditMovies extends Component {
   fetchMovieList(){
     axios.post(url + "/dbmaster/getownermovies",{
       username: this.state.username,
-    }).then((response) => {
+    },{headers:{'Content-Type': 'application/json','X-Auth-Token':getCookie ('token')}}).then((response) => {
       const movie_list = response.data.movies;
       this.setState({ movie_list: movie_list,movie_fetched:true});
     });

@@ -112,7 +112,7 @@ WORKDIR /opt/fiware-pep-proxy
 USER nobody
 ENV NODE_ENV=production
 # Ports used by application
-EXPOSE ${PEP_PROXY_PORT:-1027}
+EXPOSE ${PEP_PROXY_PORT:-1028}
 CMD ["./bin/www"]
 HEALTHCHECK  --interval=30s --timeout=3s --start-period=60s \
   CMD ["/nodejs/bin/node", "./bin/healthcheck"]
@@ -161,13 +161,13 @@ HEALTHCHECK  --interval=30s --timeout=3s --start-period=60s \
 # 
 # ALL ENVIRONMENT VARIABLES
 #
-ENV PEP_PROXY_PORT 1027
+ENV PEP_PROXY_PORT 1028
 #    PEP_PROXY_HTTPS_ENABLED
 #    PEP_PROXY_HTTPS_PORT
 ENV PEP_PROXY_IDM_HOST 172.19.1.23
 ENV PEP_PROXY_IDM_PORT 3001
 #    PEP_PROXY_IDM_SSL_ENABLED
-ENV   PEP_PROXY_APP_HOST dbmaster
+ENV   PEP_PROXY_APP_HOST dbmaster/dbmaster
 ENV   PEP_PROXY_APP_PORT 5002
 ENV   PEP_PROXY_APP_SSL_ENABLED false
 #    PEP_PROXY_ORG_ENABLED

@@ -40,7 +40,7 @@ class AddMovie extends Component {
     };
     console.log("movie success",moviedata);
     if (moviedata.title !== "" && moviedata.startDate !== null && moviedata.endDate !== null && moviedata.cinemaname !== "" ){
-      await axios.post(url + "/dbmaster/addmovie", moviedata).then(
+      await axios.post(url + "/dbmaster/addmovie", moviedata,{headers:{'Content-Type': 'application/json','X-Auth-Token':getCookie ('token')}}).then(
         (response) => {
           alert("Movie added successfully");
         },

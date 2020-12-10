@@ -15,7 +15,7 @@ function Movies(props) {
       axios.post(url + "/dbmaster/addtoFav",{
         movie_id:props.movies.movie_id,
         username:getCookie("username"),
-      }).then((response) => {
+      },{headers:{'Content-Type': 'application/json','X-Auth-Token':getCookie ('token')}}).then((response) => {
         console.log("added to fav  success");
         props.onfetched();
       },(error) => {console.log("added to fav fail");});
@@ -25,7 +25,7 @@ function Movies(props) {
       axios.post(url + "/dbmaster/removeFav",{
         movie_id:props.movies.movie_id,
         username:getCookie("username"),
-      }).then((response) => {
+      },{headers:{'Content-Type': 'application/json','X-Auth-Token':getCookie ('token')}}).then((response) => {
         console.log("remove to fav  success");
         props.onfetched();
       },(error) => {console.log("remove to fav  fail");});
@@ -93,7 +93,7 @@ class DashboardPage extends Component {
 
   handleChange() {
     // var that = this;
-    axios.post(url + "/dbmaster/getfeed", {username:getCookie("username")}).then((response) => {
+    axios.post(url + "/dbmaster/getfeed", {username:getCookie("username")},{headers:{'Content-Type': 'application/json','X-Auth-Token':getCookie ('token')}}).then((response) => {
       const movie_list2 = response.data.movies;
       this.setState({ movie_list2});
       console.log("movie_list fetched",this.state.movie_list2);
@@ -104,7 +104,7 @@ class DashboardPage extends Component {
 
   handleChange4() {
     if (this.state.checked2){
-      axios.post(url + "/dbmaster/getspecmovies", {endDate:this.state.endDate,search:this.state.search,favorite:"True",username:this.state.username}).then((response) => {
+      axios.post(url + "/dbmaster/getspecmovies", {endDate:this.state.endDate,search:this.state.search,favorite:"True",username:this.state.username},{headers:{'Content-Type': 'application/json','X-Auth-Token':getCookie ('token')}}).then((response) => {
       const movie_list = response.data.movies;
       console.log("movie_list fetched");
       this.setState({ movie_list });
@@ -112,7 +112,7 @@ class DashboardPage extends Component {
       console.log("Gamemaster/GetScores - Axios Error.");
     });
     }else{
-      axios.post(url + "/dbmaster/getspecmovies", {endDate:this.state.endDate,search:this.state.search,favorite:"False",username:this.state.username}).then((response) => {
+      axios.post(url + "/dbmaster/getspecmovies", {endDate:this.state.endDate,search:this.state.search,favorite:"False",username:this.state.username},{headers:{'Content-Type': 'application/json','X-Auth-Token':getCookie ('token')}}).then((response) => {
         const movie_list = response.data.movies;
         console.log("movie_list fetched");
         this.setState({ movie_list });
@@ -127,13 +127,13 @@ class DashboardPage extends Component {
       this.setState({username:getCookie("username"),user_role:getCookie("role")})
       // console.log("movie_list fetcheasdggvcarsdcd",getCookie("username"),getCookie("role"));
       if (!this.state.moviesfetch){
-        axios.post(url + "/dbmaster/getmovies",{username:getCookie("username")}).then((response) => {
+        axios.post(url + "/dbmaster/getmovies",{username:getCookie("username")},{headers:{'Content-Type': 'application/json','X-Auth-Token':getCookie ('token')}}).then((response) => {
           // console.log("movie_list getmovies",typeof response.data.movies);
           const movie_list = response.data.movies;
           console.log("movie_list fetched");
           this.setState({ movie_list ,moviesfetch:true});
         });
-        axios.post(url + "/dbmaster/getfeed", {username:getCookie("username")}).then((response) => {
+        axios.post(url + "/dbmaster/getfeed", {username:getCookie("username")},{headers:{'Content-Type': 'application/json','X-Auth-Token':getCookie ('token')}}).then((response) => {
           const movie_list2 = response.data.movies;
           this.setState({ movie_list2});
           console.log("movie_list fetched2222",this.state.movie_list2);
@@ -154,14 +154,14 @@ class DashboardPage extends Component {
     if (this.state.checked2===true && this.state.username){
       console.log("this.state.username",this.state.username)
       this.setState({ checked2:false });
-      axios.post(url + "/dbmaster/getmovies",{username:getCookie("username")}).then((response) => {
+      axios.post(url + "/dbmaster/getmovies",{username:getCookie("username")},{headers:{'Content-Type': 'application/json','X-Auth-Token':getCookie ('token')}}).then((response) => {
         const movie_list = response.data.movies;
         console.log("movie_list fetched");
         this.setState({ movie_list });
       });
     }else {
       this.setState({ checked2:true});
-      axios.post(url + "/dbmaster/getFav",{username:getCookie("username")}).then((response) => {
+      axios.post(url + "/dbmaster/getFav",{username:getCookie("username")},{headers:{'Content-Type': 'application/json','X-Auth-Token':getCookie ('token')}}).then((response) => {
         const movie_list = response.data.movies;
         console.log("movie_list fetched");
         this.setState({ movie_list});
