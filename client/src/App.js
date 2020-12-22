@@ -5,6 +5,7 @@ import Routes from "./Components/Routes";
 import io from "socket.io-client";
 import { getCookie,setCookie } from "./Authentication/cookies";
 
+const url = process.env.REACT_APP_SERVICE_URL
 const socket = io.connect();
 
 class App extends Component {
@@ -18,9 +19,9 @@ class App extends Component {
     });
     var config = {
       method: 'post',
-      url: 'http://localhost/idm/oauth2/token',
+      url:url+ '/idm/oauth2/token',
       headers: { 
-        'Authorization': 'Basic ZWY5ZTBkMTQtODg1My00MGE2LTg1ZGMtNTA5NGNjMzM3YWNhOmI0OTU1NmNjLThjZDEtNDVhYS1iMjU3LTRiMjJmOTdiNmUyMw==', 
+        'Authorization': 'Basic NjI1OWRlYmUtNzMyNy00YjRjLTg0NWItMTJiZWQ5NmRkY2I0OjkwYTk4NThkLTJiM2QtNDM3My1hMTBlLTY5ZThhZjcxNmU1Yw==', 
         'Content-Type': 'application/x-www-form-urlencoded'
       },
       data : data

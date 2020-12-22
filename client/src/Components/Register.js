@@ -41,7 +41,7 @@ class Register extends Component {
     var config = {headers: 
       {"Content-Type": "application/json"}
     }
-    await axios.post("http://localhost/idm/v1/auth/tokens", data,config).then(
+    await axios.post(url+"/idm/v1/auth/tokens", data,config).then(
       (response) => {
         // setCookie("token", response.data);
       console.log(JSON.stringify(response.data));
@@ -60,7 +60,7 @@ class Register extends Component {
       }
       console.log(this.state.username,this.state.email,this.state.password)
       var data2 = JSON.stringify({"user":{"username":this.state.username,"email":this.state.email,"password":this.state.password}});
-      await axios.post("http://localhost/idm/v1/users", data2,config2).then(
+      await axios.post(url+"/idm/v1/users", data2,config2).then(
         (response) => {
         console.log(JSON.stringify(response.data));
         this.setState({ id: response.data.user['id']});
@@ -72,16 +72,16 @@ class Register extends Component {
         }
       );
       if (this.state.role==="User"){
-        this.setState({ role:"d91270ac-cd6c-47de-9b04-a82e3808872d"});
+        this.setState({ role:"a234825f-735d-4e61-be33-546a9f340b1f"});
       }
       if (this.state.role==="cinema_owner"){
-        this.setState({ role:"2620ec62-f40f-45eb-b6d0-66d2ab40da84"});
+        this.setState({ role:"68d00c4d-d5cd-4f88-a5f0-79da17b67a14"});
       }
       if (this.state.role==="Admin"){
-        this.setState({ role:"64664451-576c-46f1-ae4a-5a9afca0be3c"});
+        this.setState({ role:"8b1b697f-318c-4e7a-b9dc-9d7aa0e5ce2f"});
       }
       if (this.state.checkerror===false){
-        await axios.post("http://localhost/idm/v1/organizations/"+this.state.role+"/users/"+this.state.id+"/organization_roles/member", data2,config2).then(
+        await axios.post(url+"/idm/v1/organizations/"+this.state.role+"/users/"+this.state.id+"/organization_roles/member", data2,config2).then(
           (response) => {
           console.log(JSON.stringify(response.data));
           this.setState({trash:true});

@@ -83,7 +83,7 @@ services:
       - "3000"
     environment:
       - NODE_ENV=development
-      - REACT_APP_SERVICE_URL=http://localhost:80
+      - REACT_APP_SERVICE_URL=http://34.89.214.86:80
       - CHOKIDAR_USEPOLLING=true
     networks:
       - default1
